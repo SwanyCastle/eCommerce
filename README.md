@@ -27,19 +27,23 @@
     <tr>
       <td><img src="https://img.shields.io/badge/spring data jpa-6DB33F?style=for-the-badge&logo=spring data jpa&logoColor=white"></td>
       <td>3.3.4</td>
-    </tr>  
+    </tr> 
+    </tr>
+      <tr>
+      <td><img src="https://img.shields.io/badge/lombok-6DB33F?style=for-the-badge&logo=lombok&logoColor=white"></td>
+      <td>1.18.34</td>
+    </tr>
     <tr>
       <td><img src="https://img.shields.io/badge/springsecurity-6DB33F?style=for-the-badge&logo=springsecurity&logoColor=white"></td>
       <td>3.3.4</td>
     </tr>  
     <tr>
       <td><img src="https://img.shields.io/badge/jjwt-E34F26?style=for-the-badge&logo=jjwt&logoColor=white"></td>
-      <td>0.9.1</td>
+      <td>0.11.2</td>
     </tr>
     <tr>
       <td><img src="https://img.shields.io/badge/redis-FF4438?style=for-the-badge&logo=redis&logoColor=white"></td>
       <td>7.4.0</td>
-    </tr>
   </tbody>
 </table>
 
