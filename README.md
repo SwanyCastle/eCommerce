@@ -106,5 +106,5 @@
   - 리뷰 정보 삭제 : 리뷰 작성자 및 해당 상품 게시한 판매자만 리뷰 삭제 가능하도록 기능 구현한다. <br>
 
 # ERD
-<img width="1120" alt="ecommerce-erd" src="https://github.com/user-attachments/assets/c9372158-ec77-4fac-b59b-5a7d648fd78a">
+<img width="1254" alt="스크린샷 2024-10-20 오후 3 15 50" src="https://github.com/user-attachments/assets/778fe17e-7d5f-4ebd-8d8e-bd278dc10cee">
 
