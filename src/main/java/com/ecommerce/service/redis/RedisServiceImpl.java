@@ -82,7 +82,9 @@ public class RedisServiceImpl implements RedisService {
       return false;
     }
 
-    saveDataWithTTL(key + ":verified", true, 1, TimeUnit.MINUTES);
+    // Redis 에 UserId 를 키값으로 인증 완료 여부를 저장. (유효시간 1시간으로 설정)
+    saveDataWithTTL(key + ":verified", true, 1, TimeUnit.HOURS);
+    // 기존에 Redis 에 UserId 를 키값으로 가지는 인증번호 데이터는 유효시간에 관계없이 삭제
     deleteData(key);
     return true;
   }

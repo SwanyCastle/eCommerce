@@ -75,7 +75,8 @@ public class AuthServiceImplement implements AuthService {
       throw new EmailException(ResponseCode.MAIL_SEND_FAIL);
     }
 
-    redisService.saveDataWithTTL(userId, certificationNumber, 1, TimeUnit.HOURS);
+    // Redis 에 UserId 를 키값으로 CertificationNumber 를 저장. (유효시간 3분으로 설정)
+    redisService.saveDataWithTTL(userId, certificationNumber, 3, TimeUnit.MINUTES);
 
     return ResponseEntity.status(HttpStatus.OK)
         .body(ResponseDto.getResponseBody(ResponseCode.SUCCESS));
