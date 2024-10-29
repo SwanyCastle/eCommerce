@@ -1,6 +1,9 @@
 package com.ecommerce.provider;
 
-import com.ecommerce.service.auth.AuthService;
+import com.ecommerce.entity.User;
+import com.ecommerce.exception.UserException;
+import com.ecommerce.repository.UserRepository;
+import com.ecommerce.type.ResponseCode;
 import com.ecommerce.type.Role;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -9,11 +12,11 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -23,7 +26,7 @@ public class JwtProvider {
 
   private static final long TOKEN_EXPIRE_TIME = 1000 * 60 * 60; // 1 hour
 
-  private final AuthService authService;
+  private final UserRepository userRepository;
 
   @Value("${spring.jwt.secret}")
   private String secretKey;
@@ -55,8 +58,12 @@ public class JwtProvider {
    * @return Authentication
    */
   public Authentication getAuthentication(String jwt) {
-    UserDetails userDetails = authService.getMemberByUserId(this.getUserId(jwt));
-    return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+    Optional<User> foundUser = userRepository.findByUserId(this.getUserId(jwt));
+    if (foundUser.isEmpty()) {
+      throw new UserException(ResponseCode.USER_NOT_FOUND);
+    }
+    User user = foundUser.get();
+    return new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
   }
 
   /**
@@ -74,9 +81,9 @@ public class JwtProvider {
    * @return boolean
    */
   public boolean validateToken(String token) {
-      if (!StringUtils.hasText(token)) {
-          return false;
-      }
+    if (!StringUtils.hasText(token)) {
+      return false;
+    }
 
     Claims claims = parseClaims(token);
     return !claims.getExpiration().before(new Date());

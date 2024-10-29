@@ -1,5 +1,8 @@
 package com.ecommerce.utils;
 
+import lombok.experimental.UtilityClass;
+
+@UtilityClass
 public class CertificationNumber {
 
   public static String getCertificationNumber() {

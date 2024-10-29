@@ -1,6 +1,9 @@
 package com.ecommerce.config;
 
+import com.ecommerce.dto.ResponseDto;
 import com.ecommerce.filter.JwtAuthenticationFilter;
+import com.ecommerce.type.ResponseCode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -15,9 +18,12 @@ import org.springframework.security.config.annotation.web.configurers.CsrfConfig
 import org.springframework.security.config.annotation.web.configurers.HttpBasicConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.stereotype.Component;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -29,6 +35,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfig {
 
   private final JwtAuthenticationFilter jwtAuthenticationFilter;
+  private final FailedAuthenticationEntryPoint failedAuthenticationEntryPoint;
 
   /**
    * Security Filter Chain 설정
@@ -53,7 +60,7 @@ public class SecurityConfig {
             .anyRequest().authenticated()
         )
         .exceptionHandling(exceptionHandling -> exceptionHandling
-            .authenticationEntryPoint(new FailedAuthenticationEntryPoint())
+            .authenticationEntryPoint(failedAuthenticationEntryPoint)
         )
         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
@@ -79,10 +86,22 @@ public class SecurityConfig {
     return source;
   }
 
+  /**
+   * 사용자 비밀번호 암호화를 위한 인코더 설정
+   * @return PasswordEncoder
+   */
+  @Bean
+  public PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder();
+  }
+
 }
 
-
+@Component
+@RequiredArgsConstructor
 class FailedAuthenticationEntryPoint implements AuthenticationEntryPoint {
+
+  private final ObjectMapper objectMapper;
 
   /**
    * 접근 권한이 없거나 접근 실패시 에러 처리
@@ -102,7 +121,10 @@ class FailedAuthenticationEntryPoint implements AuthenticationEntryPoint {
     response.setCharacterEncoding("UTF-8");
     response.setContentType("application/json; charset=UTF-8");
     response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-    response.getWriter().write("{\"code\" : \"NO_PERMISSION\", \"message\" : \"접근 권한이 없습니다.\"}");
+
+    response.getWriter().write(
+        objectMapper.writeValueAsString(ResponseDto.getResponseBody(ResponseCode.NO_PERMISSION))
+    );
 
   }
 

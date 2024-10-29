@@ -4,7 +4,7 @@ import com.ecommerce.dto.ResponseDto;
 import com.ecommerce.exception.CertificationException;
 import com.ecommerce.exception.DataBaseException;
 import com.ecommerce.exception.EmailException;
-import com.ecommerce.exception.RedisException;
+import com.ecommerce.exception.NotFoundException;
 import com.ecommerce.exception.UserException;
 import com.ecommerce.type.ResponseCode;
 import lombok.extern.slf4j.Slf4j;
@@ -40,8 +40,8 @@ public class GlobalExceptionHandler {
         .body(ResponseDto.getResponseBody(e.getErrorCode()));
   }
 
-  @ExceptionHandler(RedisException.class)
-  public ResponseEntity<ResponseDto> redisExceptionHandler(RedisException e) {
+  @ExceptionHandler(NotFoundException.class)
+  public ResponseEntity<ResponseDto> notFoundExceptionHandler(NotFoundException e) {
     log.error("{} 에러가 발생했습니다. (redis)", e.getErrorCode());
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
         .body(ResponseDto.getResponseBody(e.getErrorCode()));

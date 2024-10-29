@@ -18,7 +18,7 @@ public class EmailProvider {
    * 인증메일 전송
    * @param email
    * @param certificationNumber
-   * @return
+   * @return boolean
    */
   public boolean sendCertificationMail(String email, String certificationNumber) {
 
@@ -53,11 +53,11 @@ public class EmailProvider {
    */
   private String getCertificationMessage(String certificationNumber) {
     return "<h1>" +
-              "[Ecommerce] 회원가입 인증 메일" +
-           "</h1>" +
-           "<h3>" +
-              "인증코드 : <strong style='font-size: 32px; letter-spacing: 8px;'>" +
-              certificationNumber + "</strong>" +
-           "</h3>";
+        "[Ecommerce] 회원가입 인증 메일" +
+        "</h1>" +
+        "<h3>" +
+        "인증코드 : <strong style='font-size: 32px; letter-spacing: 8px;'>" +
+        certificationNumber + "</strong>" +
+        "</h3>";
   }
 }

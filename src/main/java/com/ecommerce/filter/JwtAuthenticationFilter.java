@@ -50,7 +50,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   /**
    * 들어온 요청 헤더에서 토큰 정보 추출
    * @param request
-   * @return
+   * @return String
    */
   private String resolveTokenFromRequest(HttpServletRequest request) {
     String token = request.getHeader(TOKEN_HEADER);

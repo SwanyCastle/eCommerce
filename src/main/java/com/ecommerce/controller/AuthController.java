@@ -9,6 +9,7 @@ import com.ecommerce.dto.user.UserDto;
 import com.ecommerce.service.auth.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,7 +32,8 @@ public class AuthController {
   public ResponseEntity<ResponseDto> idCheck(
       @RequestBody @Valid IdDuplicateCheckDto.Request request
   ) {
-    return authService.idDuplicateCheck(request);
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(authService.idDuplicateCheck(request));
   }
 
   /**
@@ -43,7 +45,8 @@ public class AuthController {
   public ResponseEntity<ResponseDto> enailCertification(
       @RequestBody @Valid EmailCertificationDto.Request request
   ) {
-    return authService.emailCertification(request);
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(authService.emailCertification(request));
   }
 
   /**
@@ -55,7 +58,8 @@ public class AuthController {
   public ResponseEntity<ResponseDto> checkCertification(
       @RequestBody @Valid CheckCertificationDto.Request request
   ) {
-    return authService.checkCertification(request);
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(authService.checkCertification(request));
   }
 
   /**
@@ -64,10 +68,11 @@ public class AuthController {
    * @return UserDto
    */
   @PostMapping("/sign-up")
-  public UserDto signUp(
+  public ResponseEntity<UserDto> signUp(
       @RequestBody @Valid SignUpDto.Request request
   ) {
-    return authService.signUp(request);
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(authService.signUp(request));
   }
 
 }

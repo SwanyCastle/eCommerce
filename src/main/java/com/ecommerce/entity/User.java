@@ -6,12 +6,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
-import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -29,11 +23,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 @AllArgsConstructor
 @Builder
 @Entity
-public class User implements UserDetails {
-
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+public class User extends BaseEntity implements UserDetails {
 
   @Column(name = "user_id", nullable = false)
   private String userId;
@@ -58,20 +48,6 @@ public class User implements UserDetails {
   @Column(name = "login_type", nullable = false)
   @Enumerated(EnumType.STRING)
   private LoginType loginType;
-
-  private LocalDateTime createdAt;
-  private LocalDateTime updatedAt;
-
-  @PrePersist
-  public void prePersist() {
-    this.createdAt = LocalDateTime.now();
-    this.updatedAt = LocalDateTime.now();
-  }
-
-  @PreUpdate
-  public void preUpdate() {
-    this.updatedAt = LocalDateTime.now();
-  }
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
