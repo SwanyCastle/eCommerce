@@ -58,11 +58,8 @@ public class JwtProvider {
    * @return Authentication
    */
   public Authentication getAuthentication(String jwt) {
-    Optional<User> foundUser = userRepository.findByUserId(this.getUserId(jwt));
-    if (foundUser.isEmpty()) {
-      throw new UserException(ResponseCode.USER_NOT_FOUND);
-    }
-    User user = foundUser.get();
+    User user = userRepository.findByUserId(getUserId(jwt))
+        .orElseThrow(() -> new UserException(ResponseCode.USER_NOT_FOUND));
     return new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
   }
 
