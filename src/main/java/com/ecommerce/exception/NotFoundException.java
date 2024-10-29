@@ -4,12 +4,12 @@ import com.ecommerce.type.ResponseCode;
 import lombok.Getter;
 
 @Getter
-public class RedisException extends RuntimeException {
+public class NotFoundException extends RuntimeException {
 
   private final ResponseCode errorCode;
   private final String errorMessage;
 
-  public RedisException(ResponseCode errorCode) {
+  public NotFoundException(ResponseCode errorCode) {
     this.errorCode = errorCode;
     this.errorMessage = errorCode.getDescription();
   }

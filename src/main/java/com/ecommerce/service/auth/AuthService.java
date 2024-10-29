@@ -11,16 +11,16 @@ import org.springframework.http.ResponseEntity;
 
 public interface AuthService {
 
-  ResponseEntity<ResponseDto> idDuplicateCheck(IdDuplicateCheckDto.Request request);
+  ResponseDto idDuplicateCheck(IdDuplicateCheckDto.Request request);
 
-  ResponseEntity<ResponseDto> emailCertification(
+  ResponseDto emailCertification(
       EmailCertificationDto.Request request);
 
-  ResponseEntity<ResponseDto> checkCertification(
+  ResponseDto checkCertification(
       CheckCertificationDto.Request request);
 
   UserDto signUp(SignUpDto.Request request);
 
-  User getMemberByUserId(String userId);
+  void checkExistsUserId(String userId);
 
 }
