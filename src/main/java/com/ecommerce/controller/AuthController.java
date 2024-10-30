@@ -4,8 +4,11 @@ import com.ecommerce.dto.ResponseDto;
 import com.ecommerce.dto.auth.CheckCertificationDto;
 import com.ecommerce.dto.auth.EmailCertificationDto;
 import com.ecommerce.dto.auth.IdDuplicateCheckDto;
+import com.ecommerce.dto.auth.SignInDto;
 import com.ecommerce.dto.auth.SignUpDto;
-import com.ecommerce.dto.user.UserDto;
+import com.ecommerce.dto.member.MemberDto;
+import com.ecommerce.entity.Member;
+import com.ecommerce.provider.JwtProvider;
 import com.ecommerce.service.auth.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
   private final AuthService authService;
+  private final JwtProvider jwtProvider;
 
   /**
    * 사용자 ID
@@ -68,11 +72,21 @@ public class AuthController {
    * @return UserDto
    */
   @PostMapping("/sign-up")
-  public ResponseEntity<UserDto> signUp(
+  public ResponseEntity<MemberDto> signUp(
       @RequestBody @Valid SignUpDto.Request request
   ) {
     return ResponseEntity.status(HttpStatus.OK)
         .body(authService.signUp(request));
+  }
+
+  @PostMapping("/sign-in")
+  public ResponseEntity<SignInDto.Response> signIn(
+      @RequestBody @Valid SignInDto.Request requestBody
+  ) {
+    Member member = authService.signIn(requestBody);
+    String token = jwtProvider.createToken(member.getMemberId(), member.getRole());
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(SignInDto.Response.builder().token(token).build());
   }
 
 }

@@ -17,14 +17,14 @@ import com.ecommerce.dto.auth.CheckCertificationDto;
 import com.ecommerce.dto.auth.EmailCertificationDto;
 import com.ecommerce.dto.auth.IdDuplicateCheckDto;
 import com.ecommerce.dto.auth.SignUpDto;
-import com.ecommerce.dto.user.UserDto;
-import com.ecommerce.entity.User;
+import com.ecommerce.dto.member.MemberDto;
+import com.ecommerce.entity.Member;
 import com.ecommerce.exception.CertificationException;
 import com.ecommerce.exception.DataBaseException;
 import com.ecommerce.exception.EmailException;
-import com.ecommerce.exception.UserException;
+import com.ecommerce.exception.MemberException;
 import com.ecommerce.provider.EmailProvider;
-import com.ecommerce.repository.UserRepository;
+import com.ecommerce.repository.MemberRepository;
 import com.ecommerce.service.redis.RedisService;
 import com.ecommerce.type.LoginType;
 import com.ecommerce.type.ResponseCode;
@@ -46,7 +46,7 @@ public class AuthServiceImplementTest {
   private AuthServiceImplement authServiceImplement;
 
   @Mock
-  private UserRepository userRepository;
+  private MemberRepository memberRepository;
 
   @Mock
   private EmailProvider emailProvider;
@@ -62,17 +62,17 @@ public class AuthServiceImplementTest {
   void testIdDuplicateCheck_UserNotExists() {
     // given
     IdDuplicateCheckDto.Request request = IdDuplicateCheckDto.Request.builder()
-        .userId("testUser")
+        .memberId("testUser")
         .build();
 
-    given(userRepository.existsByUserId("testUser")).willReturn(false);
+    given(memberRepository.existsByMemberId("testUser")).willReturn(false);
 
     // when
     ResponseDto response = authServiceImplement.idDuplicateCheck(request);
 
     // then
-    verify(userRepository, times(1))
-        .existsByUserId(eq("testUser"));
+    verify(memberRepository, times(1))
+        .existsByMemberId(eq("testUser"));
 
     assertEquals(ResponseCode.AVAILABLE_USER_ID, response.getCode());
   }
@@ -82,20 +82,20 @@ public class AuthServiceImplementTest {
   void testIdDuplicateCheck_UserExists() {
     // given
     IdDuplicateCheckDto.Request request = IdDuplicateCheckDto.Request.builder()
-        .userId("existsUser")
+        .memberId("existsUser")
         .build();
 
-    given(userRepository.existsByUserId("existsUser")).willReturn(true);
+    given(memberRepository.existsByMemberId("existsUser")).willReturn(true);
 
     // when
-    UserException userException = assertThrows(UserException.class,
+    MemberException memberException = assertThrows(MemberException.class,
         () -> authServiceImplement.idDuplicateCheck(request));
 
     // then
-    verify(userRepository, times(1))
-        .existsByUserId(eq("existsUser"));
+    verify(memberRepository, times(1))
+        .existsByMemberId(eq("existsUser"));
 
-    assertThat(userException.getErrorCode()).isEqualTo(ResponseCode.USER_ALREADY_EXISTS);
+    assertThat(memberException.getErrorCode()).isEqualTo(ResponseCode.MEMBER_ALREADY_EXISTS);
   }
 
   @Test
@@ -103,11 +103,11 @@ public class AuthServiceImplementTest {
   void testEmailCertification_Success() {
     // given
     EmailCertificationDto.Request request = EmailCertificationDto.Request.builder()
-        .userId("testUser")
+        .memberId("testUser")
         .email("test@email.com")
         .build();
 
-    given(userRepository.existsByUserId("testUser")).willReturn(false);
+    given(memberRepository.existsByMemberId("testUser")).willReturn(false);
     given(emailProvider.sendCertificationMail(eq("test@email.com"), anyString()))
         .willReturn(true);
     willDoNothing().given(redisService)
@@ -117,7 +117,7 @@ public class AuthServiceImplementTest {
     ResponseDto response = authServiceImplement.emailCertification(request);
 
     // then
-    verify(userRepository, times(1)).existsByUserId("testUser");
+    verify(memberRepository, times(1)).existsByMemberId("testUser");
     verify(emailProvider, times(1))
         .sendCertificationMail(eq("test@email.com"), anyString());
     verify(redisService, times(1))
@@ -131,20 +131,20 @@ public class AuthServiceImplementTest {
   void testEmailCertification_Fail_UserExists() {
     // given
     EmailCertificationDto.Request request = EmailCertificationDto.Request.builder()
-        .userId("existsUser")
+        .memberId("existsUser")
         .email("test@email.com")
         .build();
 
-    given(userRepository.existsByUserId("existsUser")).willReturn(true);
+    given(memberRepository.existsByMemberId("existsUser")).willReturn(true);
 
     // when
-    UserException userException = assertThrows(UserException.class,
+    MemberException memberException = assertThrows(MemberException.class,
         () -> authServiceImplement.emailCertification(request));
 
     // then
-    verify(userRepository, times(1)).existsByUserId("existsUser");
+    verify(memberRepository, times(1)).existsByMemberId("existsUser");
 
-    assertThat(userException.getErrorCode()).isEqualTo(ResponseCode.USER_ALREADY_EXISTS);
+    assertThat(memberException.getErrorCode()).isEqualTo(ResponseCode.MEMBER_ALREADY_EXISTS);
   }
 
   @Test
@@ -152,11 +152,11 @@ public class AuthServiceImplementTest {
   void testEmailCertification_Fail_MailSendFail() {
     // given
     EmailCertificationDto.Request request = EmailCertificationDto.Request.builder()
-        .userId("existsUser")
+        .memberId("existsUser")
         .email("test@email.com")
         .build();
 
-    given(userRepository.existsByUserId("existsUser")).willReturn(false);
+    given(memberRepository.existsByMemberId("existsUser")).willReturn(false);
     given(emailProvider.sendCertificationMail(eq("test@email.com"), anyString()))
         .willReturn(false);
 
@@ -165,7 +165,7 @@ public class AuthServiceImplementTest {
         () -> authServiceImplement.emailCertification(request));
 
     // then
-    verify(userRepository, times(1)).existsByUserId("existsUser");
+    verify(memberRepository, times(1)).existsByMemberId("existsUser");
     verify(emailProvider, times(1))
         .sendCertificationMail(eq("test@email.com"), anyString());
 
@@ -177,7 +177,7 @@ public class AuthServiceImplementTest {
   void testCheckCertification_Success() {
     // given
     CheckCertificationDto.Request request = CheckCertificationDto.Request.builder()
-        .userId("testUser")
+        .memberId("testUser")
         .certificationNumber("1234")
         .build();
 
@@ -199,7 +199,7 @@ public class AuthServiceImplementTest {
   void testCheckCertification_Fail() {
     // given
     CheckCertificationDto.Request request = CheckCertificationDto.Request.builder()
-        .userId("testUser")
+        .memberId("testUser")
         .certificationNumber("1234")
         .build();
 
@@ -222,8 +222,8 @@ public class AuthServiceImplementTest {
   void testSignUp_Success() {
     // given
     SignUpDto.Request request = SignUpDto.Request.builder()
-        .userId("testUser")
-        .userName("test")
+        .memberId("testUser")
+        .memberName("test")
         .email("test@email.com")
         .password("testPassword")
         .phoneNumber("01011112222")
@@ -231,14 +231,14 @@ public class AuthServiceImplementTest {
         .role(Role.CUSTOMER)
         .build();
 
-    given(userRepository.existsByUserId("testUser")).willReturn(false);
+    given(memberRepository.existsByMemberId("testUser")).willReturn(false);
     given(redisService.checkVerified("testUser:verified")).willReturn(true);
     given(passwordEncoder.encode(anyString())).willReturn("encodedPassword");
 
-    given(userRepository.save(any(User.class))).willReturn(
-        User.builder()
-            .userId("testUser")
-            .userName("test")
+    given(memberRepository.save(any(Member.class))).willReturn(
+        Member.builder()
+            .memberId("testUser")
+            .memberName("test")
             .email("test@email.com")
             .password("encodedPassword")
             .phoneNumber("01011112222")
@@ -248,23 +248,23 @@ public class AuthServiceImplementTest {
             .build()
     );
 
-    ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+    ArgumentCaptor<Member> userCaptor = ArgumentCaptor.forClass(Member.class);
 
     // when
-    UserDto signedUpUser = authServiceImplement.signUp(request);
+    MemberDto signedUpMember = authServiceImplement.signUp(request);
 
     // then
-    verify(userRepository, times(1)).existsByUserId("testUser");
+    verify(memberRepository, times(1)).existsByMemberId("testUser");
     verify(redisService, times(1))
         .checkVerified(eq("testUser:verified"));
     verify(passwordEncoder, times(1)).encode(eq("testPassword"));
-    verify(userRepository, times(1)).save(userCaptor.capture());
+    verify(memberRepository, times(1)).save(userCaptor.capture());
 
     assertThat(userCaptor.getValue()).isNotNull();
 // ArgumentCaptor 가 캡쳐 하는 시점이 userRepository.save() 함수에 인자값을 전달하는
 // 시기에 캡쳐하는거라 id 값은 가져 올수 없다.
 //    assertThat(userCaptor.getValue().getId()).isEqualTo(1L);
-    assertThat(userCaptor.getValue().getUserId()).isEqualTo("testUser");
+    assertThat(userCaptor.getValue().getMemberId()).isEqualTo("testUser");
     assertThat(userCaptor.getValue().getUsername()).isEqualTo("test");
     assertThat(userCaptor.getValue().getEmail()).isEqualTo("test@email.com");
     assertThat(userCaptor.getValue().getPassword()).isEqualTo("encodedPassword");
@@ -279,8 +279,8 @@ public class AuthServiceImplementTest {
   void testSignUp_Fail_UserIdExists() {
     // given
     SignUpDto.Request request = SignUpDto.Request.builder()
-        .userId("testUser")
-        .userName("test")
+        .memberId("testUser")
+        .memberName("test")
         .email("test@email.com")
         .password("testPassword")
         .phoneNumber("01011112222")
@@ -288,16 +288,16 @@ public class AuthServiceImplementTest {
         .role(Role.CUSTOMER)
         .build();
 
-    given(userRepository.existsByUserId("testUser")).willReturn(true);
+    given(memberRepository.existsByMemberId("testUser")).willReturn(true);
 
     // when
-    UserException userException = assertThrows(UserException.class,
+    MemberException memberException = assertThrows(MemberException.class,
         () -> authServiceImplement.signUp(request));
 
     // then
-    verify(userRepository, times(1)).existsByUserId("testUser");
+    verify(memberRepository, times(1)).existsByMemberId("testUser");
 
-    assertThat(userException.getErrorCode()).isEqualTo(ResponseCode.USER_ALREADY_EXISTS);
+    assertThat(memberException.getErrorCode()).isEqualTo(ResponseCode.MEMBER_ALREADY_EXISTS);
   }
 
   @Test
@@ -305,8 +305,8 @@ public class AuthServiceImplementTest {
   void testSignUp_Fail_DidNotCertification() {
     // given
     SignUpDto.Request request = SignUpDto.Request.builder()
-        .userId("testUser")
-        .userName("test")
+        .memberId("testUser")
+        .memberName("test")
         .email("test@email.com")
         .password("testPassword")
         .phoneNumber("01011112222")
@@ -314,7 +314,7 @@ public class AuthServiceImplementTest {
         .role(Role.CUSTOMER)
         .build();
 
-    given(userRepository.existsByUserId("testUser")).willReturn(false);
+    given(memberRepository.existsByMemberId("testUser")).willReturn(false);
     given(redisService.checkVerified("testUser:verified")).willReturn(false);
 
     // when
@@ -322,7 +322,7 @@ public class AuthServiceImplementTest {
         () -> authServiceImplement.signUp(request));
 
     // then
-    verify(userRepository, times(1)).existsByUserId("testUser");
+    verify(memberRepository, times(1)).existsByMemberId("testUser");
     verify(redisService, times(1))
         .checkVerified(eq("testUser:verified"));
 
@@ -335,8 +335,8 @@ public class AuthServiceImplementTest {
   void testSignUp_Fail_UserSaveError() {
     // given
     SignUpDto.Request request = SignUpDto.Request.builder()
-        .userId("testUser")
-        .userName("test")
+        .memberId("testUser")
+        .memberName("test")
         .email("test@email.com")
         .password("testPassword")
         .phoneNumber("01011112222")
@@ -344,19 +344,19 @@ public class AuthServiceImplementTest {
         .role(Role.CUSTOMER)
         .build();
 
-    given(userRepository.existsByUserId("testUser")).willReturn(false);
+    given(memberRepository.existsByMemberId("testUser")).willReturn(false);
     given(redisService.checkVerified("testUser:verified")).willReturn(true);
     given(passwordEncoder.encode(anyString())).willReturn("encodedPassword");
 
     doThrow(new RuntimeException("DataBase 저장 오류"))
-        .when(userRepository).save(any(User.class));
+        .when(memberRepository).save(any(Member.class));
 
     // when
     DataBaseException dataBaseException = assertThrows(DataBaseException.class,
         () -> authServiceImplement.signUp(request));
 
     // then
-    verify(userRepository, times(1)).existsByUserId("testUser");
+    verify(memberRepository, times(1)).existsByMemberId("testUser");
     verify(redisService, times(1))
         .checkVerified(eq("testUser:verified"));
     verify(passwordEncoder, times(1)).encode(eq("testPassword"));

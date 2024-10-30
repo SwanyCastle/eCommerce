@@ -1,6 +1,6 @@
 package com.ecommerce.dto.auth;
 
-import com.ecommerce.entity.User;
+import com.ecommerce.entity.Member;
 import com.ecommerce.type.LoginType;
 import com.ecommerce.type.Role;
 import jakarta.validation.constraints.Email;
@@ -23,10 +23,10 @@ public class SignUpDto {
   public static class Request {
 
     @NotBlank
-    private String userId;
+    private String memberId;
 
     @NotBlank
-    private String userName;
+    private String memberName;
 
     @Email
     @NotBlank
@@ -42,10 +42,10 @@ public class SignUpDto {
     @NotNull
     private Role role;
 
-    public static User toEntity(SignUpDto.Request request, String encodedPassword) {
-      return User.builder()
-          .userId(request.getUserId())
-          .userName(request.getUserName())
+    public static Member toEntity(SignUpDto.Request request, String encodedPassword) {
+      return Member.builder()
+          .memberId(request.getMemberId())
+          .memberName(request.getMemberName())
           .email(request.getEmail())
           .password(encodedPassword)
           .phoneNumber(request.getPhoneNumber())

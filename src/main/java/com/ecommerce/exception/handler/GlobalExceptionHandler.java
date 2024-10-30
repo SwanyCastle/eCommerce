@@ -5,7 +5,7 @@ import com.ecommerce.exception.CertificationException;
 import com.ecommerce.exception.DataBaseException;
 import com.ecommerce.exception.EmailException;
 import com.ecommerce.exception.NotFoundException;
-import com.ecommerce.exception.UserException;
+import com.ecommerce.exception.MemberException;
 import com.ecommerce.type.ResponseCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -26,8 +26,8 @@ public class GlobalExceptionHandler {
         .body(ResponseDto.getResponseBody(ResponseCode.VALIDATION_FAIL));
   }
 
-  @ExceptionHandler(UserException.class)
-  public ResponseEntity<ResponseDto> userExceptionHandler(UserException e) {
+  @ExceptionHandler(MemberException.class)
+  public ResponseEntity<ResponseDto> userExceptionHandler(MemberException e) {
     log.error("{} 에러가 발생했습니다. (user)", e.getErrorCode());
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
         .body(ResponseDto.getResponseBody(e.getErrorCode()));

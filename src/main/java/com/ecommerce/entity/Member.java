@@ -23,13 +23,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 @AllArgsConstructor
 @Builder
 @Entity
-public class User extends BaseEntity implements UserDetails {
+public class Member extends BaseEntity implements UserDetails {
 
-  @Column(name = "user_id", nullable = false)
-  private String userId;
+  @Column(name = "member_id", nullable = false)
+  private String memberId;
 
-  @Column(name = "user_name", nullable = false)
-  private String userName;
+  @Column(name = "member_name", nullable = false)
+  private String memberName;
 
   @Column(nullable = false)
   private String email;
@@ -56,6 +56,6 @@ public class User extends BaseEntity implements UserDetails {
 
   @Override
   public String getUsername() {
-    return this.userName;
+    return this.memberName;
   }
 }

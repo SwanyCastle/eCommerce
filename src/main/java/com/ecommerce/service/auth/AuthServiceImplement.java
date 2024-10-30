@@ -4,14 +4,16 @@ import com.ecommerce.dto.ResponseDto;
 import com.ecommerce.dto.auth.CheckCertificationDto;
 import com.ecommerce.dto.auth.EmailCertificationDto;
 import com.ecommerce.dto.auth.IdDuplicateCheckDto;
+import com.ecommerce.dto.auth.SignInDto;
 import com.ecommerce.dto.auth.SignUpDto;
-import com.ecommerce.dto.user.UserDto;
+import com.ecommerce.dto.member.MemberDto;
+import com.ecommerce.entity.Member;
 import com.ecommerce.exception.CertificationException;
 import com.ecommerce.exception.DataBaseException;
 import com.ecommerce.exception.EmailException;
-import com.ecommerce.exception.UserException;
+import com.ecommerce.exception.MemberException;
 import com.ecommerce.provider.EmailProvider;
-import com.ecommerce.repository.UserRepository;
+import com.ecommerce.repository.MemberRepository;
 import com.ecommerce.service.redis.RedisService;
 import com.ecommerce.type.ResponseCode;
 import com.ecommerce.utils.CertificationNumber;
@@ -26,7 +28,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AuthServiceImplement implements AuthService {
 
-  private final UserRepository userRepository;
+  private final MemberRepository memberRepository;
   private final EmailProvider emailProvider;
   private final RedisService redisService;
 
@@ -41,7 +43,7 @@ public class AuthServiceImplement implements AuthService {
   @Override
   public ResponseDto idDuplicateCheck(IdDuplicateCheckDto.Request request) {
 
-    checkExistsUserId(request.getUserId());
+    checkExistsUserId(request.getMemberId());
 
     return ResponseDto.getResponseBody(ResponseCode.AVAILABLE_USER_ID);
 
@@ -56,9 +58,9 @@ public class AuthServiceImplement implements AuthService {
   @Override
   public ResponseDto emailCertification(EmailCertificationDto.Request request) {
 
-    String userId = request.getUserId();
+    String userId = request.getMemberId();
 
-    checkExistsUserId(request.getUserId());
+    checkExistsUserId(request.getMemberId());
 
     String certificationNumber = CertificationNumber.getCertificationNumber();
 
@@ -85,7 +87,7 @@ public class AuthServiceImplement implements AuthService {
   public ResponseDto checkCertification(CheckCertificationDto.Request request) {
 
     boolean isVerified = redisService.verifyCertificationNumber(
-        request.getUserId(), request.getCertificationNumber()
+        request.getMemberId(), request.getCertificationNumber()
     );
     if (!isVerified) {
       throw new CertificationException(ResponseCode.CERTIFICATION_NUMBER_FAIL);
@@ -102,11 +104,11 @@ public class AuthServiceImplement implements AuthService {
    * @return UserDto
    */
   @Override
-  public UserDto signUp(SignUpDto.Request request) {
+  public MemberDto signUp(SignUpDto.Request request) {
 
-    String userId = request.getUserId();
+    String userId = request.getMemberId();
 
-    checkExistsUserId(request.getUserId());
+    checkExistsUserId(request.getMemberId());
 
     boolean isCheckVerified = redisService.checkVerified(userId + ":verified");
     if (!isCheckVerified) {
@@ -116,8 +118,8 @@ public class AuthServiceImplement implements AuthService {
     try {
       String encodedPassword = passwordEncoder.encode(request.getPassword());
 
-      return UserDto.fromEntity(
-          userRepository.save(SignUpDto.Request.toEntity(request, encodedPassword))
+      return MemberDto.fromEntity(
+          memberRepository.save(SignUpDto.Request.toEntity(request, encodedPassword))
       );
     } catch (Exception e) {
       e.printStackTrace();
@@ -126,12 +128,34 @@ public class AuthServiceImplement implements AuthService {
 
   }
 
+  /**
+   * 로그인
+   * @param request
+   * @return Member
+   */
+  @Override
+  public Member signIn(SignInDto.Request request) {
+
+    Member member = memberRepository.findByMemberId(request.getMemberId())
+        .orElseThrow(() -> new MemberException(ResponseCode.MEMBER_NOT_FOUND));
+
+    boolean isMatched = passwordEncoder.matches(request.getPassword(), member.getPassword());
+    if (!isMatched) {
+      throw new MemberException(ResponseCode.PASSWORD_UNMATCHED);
+    }
+
+    return member;
+
+  }
+
   @Override
   public void checkExistsUserId(String userId) {
-    boolean isExists = userRepository.existsByUserId(userId);
+
+    boolean isExists = memberRepository.existsByMemberId(userId);
     if (isExists) {
-      throw new UserException(ResponseCode.USER_ALREADY_EXISTS);
+      throw new MemberException(ResponseCode.MEMBER_ALREADY_EXISTS);
     }
+
   }
 
 }

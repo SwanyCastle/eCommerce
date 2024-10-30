@@ -1,8 +1,8 @@
 package com.ecommerce.provider;
 
-import com.ecommerce.entity.User;
-import com.ecommerce.exception.UserException;
-import com.ecommerce.repository.UserRepository;
+import com.ecommerce.entity.Member;
+import com.ecommerce.exception.MemberException;
+import com.ecommerce.repository.MemberRepository;
 import com.ecommerce.type.ResponseCode;
 import com.ecommerce.type.Role;
 import io.jsonwebtoken.Claims;
@@ -12,7 +12,6 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -26,7 +25,7 @@ public class JwtProvider {
 
   private static final long TOKEN_EXPIRE_TIME = 1000 * 60 * 60; // 1 hour
 
-  private final UserRepository userRepository;
+  private final MemberRepository memberRepository;
 
   @Value("${spring.jwt.secret}")
   private String secretKey;
@@ -34,17 +33,17 @@ public class JwtProvider {
   /**
    * 사용자 ID, 권한(Role) 정보를 포함한
    * JWT 토큰 생성
-   * @param userId
+   * @param memberId
    * @return String
    */
-  public String createToken(String userId, Role role) {
+  public String createToken(String memberId, Role role) {
     Map<String, Object> claims = new HashMap<>();
     claims.put("role", role.name());
 
     return Jwts.builder()
         .signWith(SignatureAlgorithm.HS256, secretKey)
         .setClaims(claims)
-        .setSubject(userId)
+        .setSubject(memberId)
         .setIssuedAt(new Date(System.currentTimeMillis()))
         .setExpiration(new Date(System.currentTimeMillis() + TOKEN_EXPIRE_TIME))
         .compact();
@@ -58,9 +57,9 @@ public class JwtProvider {
    * @return Authentication
    */
   public Authentication getAuthentication(String jwt) {
-    User user = userRepository.findByUserId(getUserId(jwt))
-        .orElseThrow(() -> new UserException(ResponseCode.USER_NOT_FOUND));
-    return new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+    Member member = memberRepository.findByMemberId(getMemberId(jwt))
+        .orElseThrow(() -> new MemberException(ResponseCode.MEMBER_NOT_FOUND));
+    return new UsernamePasswordAuthenticationToken(member, null, member.getAuthorities());
   }
 
   /**
@@ -68,7 +67,7 @@ public class JwtProvider {
    * @param token
    * @return String
    */
-  public String getUserId(String token) {
+  public String getMemberId(String token) {
     return parseClaims(token).getSubject();
   }
 

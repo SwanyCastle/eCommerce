@@ -17,7 +17,7 @@ public class IdDuplicateCheckDto {
   public static class Request {
 
     @NotBlank
-    private String userId;
+    private String memberId;
 
   }
 

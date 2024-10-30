@@ -17,9 +17,9 @@ public enum ResponseCode {
   CERTIFICATION_NUMBER_SUCCESS("정상적으로 인증되었습니다."),
 
   AVAILABLE_USER_ID("사용 가능한 사용자 ID 입니다."),
-  USER_NOT_FOUND("사용자가 존재하지 않습니다."),
+  MEMBER_NOT_FOUND("사용자가 존재하지 않습니다."),
   PASSWORD_UNMATCHED("비밀번호가 일치하지 않습니다."),
-  USER_ALREADY_EXISTS("이미 존재하는 사용자 입니다."),
+  MEMBER_ALREADY_EXISTS("이미 존재하는 사용자 입니다."),
   SIGN_IN_FAIL("로그인을 실패했습니다."),
 
   MAIL_SEND_SUCCESS("메일이 정상적으로 전송되었습니다."),
