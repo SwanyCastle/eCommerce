@@ -79,6 +79,11 @@ public class AuthController {
         .body(authService.signUp(request));
   }
 
+  /**
+   * 로그인
+   * @param requestBody
+   * @return ResponseEntity<SignInDto.Response>
+   */
   @PostMapping("/sign-in")
   public ResponseEntity<SignInDto.Response> signIn(
       @RequestBody @Valid SignInDto.Request requestBody

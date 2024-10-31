@@ -148,6 +148,10 @@ public class AuthServiceImplement implements AuthService {
 
   }
 
+  /**
+   * Member Id  존재 여부 확인
+   * @param userId
+   */
   @Override
   public void checkExistsUserId(String userId) {
 

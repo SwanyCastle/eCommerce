@@ -16,6 +16,7 @@ import com.ecommerce.dto.ResponseDto;
 import com.ecommerce.dto.auth.CheckCertificationDto;
 import com.ecommerce.dto.auth.EmailCertificationDto;
 import com.ecommerce.dto.auth.IdDuplicateCheckDto;
+import com.ecommerce.dto.auth.SignInDto;
 import com.ecommerce.dto.auth.SignUpDto;
 import com.ecommerce.dto.member.MemberDto;
 import com.ecommerce.entity.Member;
@@ -29,6 +30,7 @@ import com.ecommerce.service.redis.RedisService;
 import com.ecommerce.type.LoginType;
 import com.ecommerce.type.ResponseCode;
 import com.ecommerce.type.Role;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -214,7 +216,8 @@ public class AuthServiceImplementTest {
     verify(redisService, times(1))
         .verifyCertificationNumber(eq("testUser"), eq("1234"));
 
-    assertThat(certificationException.getErrorCode()).isEqualTo(ResponseCode.CERTIFICATION_NUMBER_FAIL);
+    assertThat(certificationException.getErrorCode()).isEqualTo(
+        ResponseCode.CERTIFICATION_NUMBER_FAIL);
   }
 
   @Test
@@ -362,5 +365,110 @@ public class AuthServiceImplementTest {
     verify(passwordEncoder, times(1)).encode(eq("testPassword"));
 
     assertThat(dataBaseException.getErrorCode()).isEqualTo(ResponseCode.DATABASE_ERROR);
+  }
+
+  @Test
+  @DisplayName("로그인 - 성공")
+  void testSignIn_Success() {
+    // given
+    SignInDto.Request request = SignInDto.Request.builder()
+        .memberId("testUser")
+        .password("testPassword")
+        .build();
+
+    Member member = Member.builder()
+        .memberId("testUser")
+        .memberName("test")
+        .email("test@email.com")
+        .password("encodedPassword")
+        .phoneNumber("01011112222")
+        .address("test시 test구 test로 111")
+        .role(Role.CUSTOMER)
+        .loginType(LoginType.APP)
+        .build();
+
+    given(memberRepository.findByMemberId(eq("testUser")))
+        .willReturn(Optional.ofNullable(member));
+    given(passwordEncoder.matches(eq("testPassword"), eq("encodedPassword")))
+        .willReturn(true);
+
+    // when
+    Member signedInMember = authServiceImplement.signIn(request);
+
+    // then
+    verify(memberRepository, times(1))
+        .findByMemberId(eq("testUser"));
+    verify(passwordEncoder, times(1))
+        .matches(eq("testPassword"), eq("encodedPassword"));
+
+    assertThat(signedInMember.getMemberId()).isEqualTo("testUser");
+    assertThat(signedInMember.getMemberName()).isEqualTo("test");
+    assertThat(signedInMember.getEmail()).isEqualTo("test@email.com");
+    assertThat(signedInMember.getPassword()).isEqualTo("encodedPassword");
+    assertThat(signedInMember.getPhoneNumber()).isEqualTo("01011112222");
+    assertThat(signedInMember.getAddress()).isEqualTo("test시 test구 test로 111");
+    assertThat(signedInMember.getRole()).isEqualTo(Role.CUSTOMER);
+    assertThat(signedInMember.getLoginType()).isEqualTo(LoginType.APP);
+  }
+
+  @Test
+  @DisplayName("로그인 - 실패 (존재하지 않는 멤버)")
+  void testSignIn_Fail_MemberNotFound() {
+    // given
+    SignInDto.Request request = SignInDto.Request.builder()
+        .memberId("testUser")
+        .password("testPassword")
+        .build();
+
+    given(memberRepository.findByMemberId(eq("testUser")))
+        .willReturn(Optional.empty());
+
+    // when
+    MemberException memberException = assertThrows(MemberException.class,
+        () -> authServiceImplement.signIn(request));
+
+    // then
+    verify(memberRepository, times(1))
+        .findByMemberId(eq("testUser"));
+
+    assertThat(memberException.getErrorCode()).isEqualTo(ResponseCode.MEMBER_NOT_FOUND);
+  }
+
+  @Test
+  @DisplayName("로그인 - 실패 (비밀번호 불일치)")
+  void testSignIn_Fail_PasswordUnMatched() {
+    // given
+    SignInDto.Request request = SignInDto.Request.builder()
+        .memberId("testUser")
+        .password("testPassword")
+        .build();
+
+    Member member = Member.builder()
+        .memberId("testUser")
+        .memberName("test")
+        .email("test@email.com")
+        .password("encodedPassword")
+        .phoneNumber("01011112222")
+        .address("test시 test구 test로 111")
+        .role(Role.CUSTOMER)
+        .loginType(LoginType.APP)
+        .build();
+
+    given(memberRepository.findByMemberId(eq("testUser")))
+        .willReturn(Optional.ofNullable(member));
+    given(passwordEncoder.matches(eq("testPassword"), eq("encodedPassword")))
+        .willReturn(false);
+
+    // when
+    MemberException memberException = assertThrows(MemberException.class,
+        () -> authServiceImplement.signIn(request));
+
+    // then
+    verify(memberRepository, times(1))
+        .findByMemberId(eq("testUser"));
+    verify(passwordEncoder, times(1))
+        .matches(eq("testPassword"), eq("encodedPassword"));
+
+    assertThat(memberException.getErrorCode()).isEqualTo(ResponseCode.PASSWORD_UNMATCHED);
   }
 }
