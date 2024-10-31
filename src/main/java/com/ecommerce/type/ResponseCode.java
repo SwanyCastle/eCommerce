@@ -21,7 +21,9 @@ public enum ResponseCode {
   MEMBER_DELETE_SUCCESS("사용자 정보를 정상적으로 삭제 했습니다."),
   PASSWORD_UNMATCHED("비밀번호가 일치하지 않습니다."),
   MEMBER_ALREADY_EXISTS("이미 존재하는 사용자 입니다."),
+  MEMBER_UNMATCHED("사용자 정보가 일치하지 않습니다."),
   SIGN_IN_FAIL("로그인을 실패했습니다."),
+  SIGN_OUT_SUCCESS("성공적으로 로그아웃 되었습니다."),
 
   MAIL_SEND_SUCCESS("메일이 정상적으로 전송되었습니다."),
   MAIL_SEND_FAIL("메일 전송을 실패했습니다."),

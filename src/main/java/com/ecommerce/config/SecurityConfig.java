@@ -56,7 +56,16 @@ public class SecurityConfig {
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         )
         .authorizeHttpRequests(request -> request
-            .requestMatchers("/", "/api/v1/auth/**", "/oauth2/**").permitAll()
+            .requestMatchers(
+                "/",
+                "/api/v1/auth/id-check",
+                "/api/v1/auth/email-certification",
+                "/api/v1/auth/check-certification",
+                "/api/v1/auth/sign-up",
+                "/api/v1/auth/sign-in",
+                "/oauth2/**"
+            )
+            .permitAll()
             .anyRequest().authenticated()
         )
         .exceptionHandling(exceptionHandling -> exceptionHandling

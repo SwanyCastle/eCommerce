@@ -7,15 +7,15 @@ import com.ecommerce.dto.auth.IdDuplicateCheckDto;
 import com.ecommerce.dto.auth.SignInDto;
 import com.ecommerce.dto.auth.SignUpDto;
 import com.ecommerce.dto.member.MemberDto;
-import com.ecommerce.entity.Member;
-import com.ecommerce.provider.JwtProvider;
 import com.ecommerce.service.auth.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
   private final AuthService authService;
-  private final JwtProvider jwtProvider;
 
   /**
    * 사용자 ID
@@ -88,10 +87,21 @@ public class AuthController {
   public ResponseEntity<SignInDto.Response> signIn(
       @RequestBody @Valid SignInDto.Request requestBody
   ) {
-    Member member = authService.signIn(requestBody);
-    String token = jwtProvider.createToken(member.getMemberId(), member.getRole());
+    return ResponseEntity.status(HttpStatus.OK).body(authService.signIn(requestBody));
+  }
+
+  /**
+   * 로그아웃
+   * @param memberId
+   * @return ResponseEntity<ResponseDto>
+   */
+  @PostMapping("/sign-out/{memberId}")
+  public ResponseEntity<ResponseDto> signOut(
+      @PathVariable String memberId,
+      @RequestHeader("Authorization") String token
+  ) {
     return ResponseEntity.status(HttpStatus.OK)
-        .body(SignInDto.Response.builder().token(token).build());
+        .body(authService.signOut(memberId, token));
   }
 
 }

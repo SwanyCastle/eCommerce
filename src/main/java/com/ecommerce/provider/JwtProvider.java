@@ -1,8 +1,11 @@
 package com.ecommerce.provider;
 
+import static com.ecommerce.filter.JwtAuthenticationFilter.TOKEN_PREFIX;
+
 import com.ecommerce.entity.Member;
 import com.ecommerce.exception.MemberException;
 import com.ecommerce.repository.MemberRepository;
+import com.ecommerce.repository.redis.RedisRepository;
 import com.ecommerce.type.ResponseCode;
 import com.ecommerce.type.Role;
 import io.jsonwebtoken.Claims;
@@ -26,6 +29,7 @@ public class JwtProvider {
   private static final long TOKEN_EXPIRE_TIME = 1000 * 60 * 60; // 1 hour
 
   private final MemberRepository memberRepository;
+  private final RedisRepository redisRepository;
 
   @Value("${spring.jwt.secret}")
   private String secretKey;
@@ -72,12 +76,31 @@ public class JwtProvider {
   }
 
   /**
+   * 토큰에 있는 사용자 ID 와 요청으로 들어오 사용자 ID 비교
+   * @param memberId
+   * @param token
+   * @return boolean
+   */
+  public boolean equalMemberId(String memberId, String token) {
+    String substringToken = token.substring(TOKEN_PREFIX.length());
+
+    String tokenMemberId = getMemberId(substringToken);
+
+    return tokenMemberId.equals(memberId);
+  }
+
+  /**
    * 파싱한 토큰이 유효한지 검증
    * @param token
    * @return boolean
    */
   public boolean validateToken(String token) {
     if (!StringUtils.hasText(token)) {
+      return false;
+    }
+
+    Object cacheToken = redisRepository.getData(getMemberId(token));
+    if (cacheToken == null) {
       return false;
     }
 

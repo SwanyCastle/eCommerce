@@ -7,7 +7,6 @@ import com.ecommerce.dto.auth.IdDuplicateCheckDto;
 import com.ecommerce.dto.auth.SignInDto;
 import com.ecommerce.dto.auth.SignUpDto;
 import com.ecommerce.dto.member.MemberDto;
-import com.ecommerce.entity.Member;
 
 public interface AuthService {
 
@@ -19,7 +18,9 @@ public interface AuthService {
 
   MemberDto signUp(SignUpDto.Request request);
 
-  Member signIn(SignInDto.Request request);
+  SignInDto.Response signIn(SignInDto.Request request);
+
+  ResponseDto signOut(String memberId, String token);
 
   void checkExistsUserId(String userId);
 

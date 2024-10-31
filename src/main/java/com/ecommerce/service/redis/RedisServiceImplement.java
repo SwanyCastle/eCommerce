@@ -26,6 +26,15 @@ public class RedisServiceImplement implements RedisService {
   }
 
   /**
+   * 로그아웃시 Redis 에 저장된 Token 정보 삭제
+   * @param key
+   */
+  @Override
+  public void deleteToken(String key) {
+    redisRepository.deleteData(key);
+  }
+
+  /**
    * 이메일로 전송받은 인증 번호 확인
    * @param key
    * @param certificationNumber

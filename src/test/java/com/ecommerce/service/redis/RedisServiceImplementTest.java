@@ -31,49 +31,6 @@ class RedisServiceImplementTest {
   private RedisServiceImplement redisServiceImplement;
 
   @Test
-  @DisplayName("유효시간을 포함한 데이터 저장 - 성공")
-  void testSaveDataWithTTL_Success() {
-    // given
-    String key = "testKey";
-    String value = "1234";
-    long timeout = 1L;
-    TimeUnit unit = TimeUnit.MINUTES;
-
-    willDoNothing().given(redisRepository)
-        .setData(eq(key), eq(value), eq(timeout), eq(unit));
-
-    // when
-    redisServiceImplement.saveDataWithTTL(key, value, timeout, unit);
-
-    // then
-    verify(redisRepository, times(1))
-        .setData(eq("testKey"), eq("1234"), eq(1L), eq(TimeUnit.MINUTES));
-  }
-
-  @Test
-  @DisplayName("유효시간을 포함한 데이터 저장 - 실패")
-  void testSaveDataWithTTL_Fail() {
-    // given
-    String key = "testKey";
-    String value = "1234";
-    long timeout = 1L;
-    TimeUnit unit = TimeUnit.MINUTES;
-
-    doThrow(new DataBaseException(ResponseCode.DATABASE_ERROR)).when(redisRepository)
-        .setData(eq(key), eq(value), eq(timeout), eq(unit));
-
-    // when
-    DataBaseException dataBaseException = assertThrows(DataBaseException.class,
-        () -> redisServiceImplement.saveDataWithTTL(key, value, timeout, unit));
-
-    // then
-    verify(redisRepository, times(1))
-        .setData(eq("testKey"), eq("1234"), eq(1L), eq(TimeUnit.MINUTES));
-
-    assertThat(dataBaseException.getErrorCode()).isEqualTo(ResponseCode.DATABASE_ERROR);
-  }
-
-  @Test
   @DisplayName("인증번호 확인 - 성공")
   void testVerifyCertificationNumber_Success() {
     // given

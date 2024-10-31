@@ -25,6 +25,7 @@ import com.ecommerce.exception.DataBaseException;
 import com.ecommerce.exception.EmailException;
 import com.ecommerce.exception.MemberException;
 import com.ecommerce.provider.EmailProvider;
+import com.ecommerce.provider.JwtProvider;
 import com.ecommerce.repository.MemberRepository;
 import com.ecommerce.service.redis.RedisService;
 import com.ecommerce.type.LoginType;
@@ -52,6 +53,9 @@ public class AuthServiceImplementTest {
 
   @Mock
   private EmailProvider emailProvider;
+
+  @Mock
+  private JwtProvider jwtProvider;
 
   @Mock
   private RedisService redisService;
@@ -391,24 +395,26 @@ public class AuthServiceImplementTest {
         .willReturn(Optional.ofNullable(member));
     given(passwordEncoder.matches(eq("testPassword"), eq("encodedPassword")))
         .willReturn(true);
+    given(jwtProvider.createToken(eq("testUser"), eq(Role.CUSTOMER)))
+        .willReturn("testAccessToken");
+
+    willDoNothing().given(redisService)
+        .saveDataWithTTL(eq("testUser"), eq("testAccessToken"), eq(1L), eq(TimeUnit.HOURS));
 
     // when
-    Member signedInMember = authServiceImplement.signIn(request);
+    SignInDto.Response response = authServiceImplement.signIn(request);
 
     // then
     verify(memberRepository, times(1))
         .findByMemberId(eq("testUser"));
     verify(passwordEncoder, times(1))
         .matches(eq("testPassword"), eq("encodedPassword"));
+    verify(jwtProvider, times(1))
+        .createToken(eq("testUser"), eq(Role.CUSTOMER));
+    verify(redisService, times(1))
+        .saveDataWithTTL(eq("testUser"), anyString(), eq(1L), eq(TimeUnit.HOURS));
 
-    assertThat(signedInMember.getMemberId()).isEqualTo("testUser");
-    assertThat(signedInMember.getMemberName()).isEqualTo("test");
-    assertThat(signedInMember.getEmail()).isEqualTo("test@email.com");
-    assertThat(signedInMember.getPassword()).isEqualTo("encodedPassword");
-    assertThat(signedInMember.getPhoneNumber()).isEqualTo("01011112222");
-    assertThat(signedInMember.getAddress()).isEqualTo("test시 test구 test로 111");
-    assertThat(signedInMember.getRole()).isEqualTo(Role.CUSTOMER);
-    assertThat(signedInMember.getLoginType()).isEqualTo(LoginType.APP);
+    assertThat(response.getToken()).isEqualTo("testAccessToken");
   }
 
   @Test
@@ -471,4 +477,114 @@ public class AuthServiceImplementTest {
 
     assertThat(memberException.getErrorCode()).isEqualTo(ResponseCode.PASSWORD_UNMATCHED);
   }
+
+  @Test
+  @DisplayName("로그인 - 실패 (Redis 서버 에러)")
+  void testSignIn_Fail_RedisServerError() {
+    // given
+    SignInDto.Request request = SignInDto.Request.builder()
+        .memberId("testUser")
+        .password("testPassword")
+        .build();
+
+    Member member = Member.builder()
+        .memberId("testUser")
+        .memberName("test")
+        .email("test@email.com")
+        .password("encodedPassword")
+        .phoneNumber("01011112222")
+        .address("test시 test구 test로 111")
+        .role(Role.CUSTOMER)
+        .loginType(LoginType.APP)
+        .build();
+
+    given(memberRepository.findByMemberId(eq("testUser")))
+        .willReturn(Optional.ofNullable(member));
+    given(passwordEncoder.matches(eq("testPassword"), eq("encodedPassword")))
+        .willReturn(true);
+    given(jwtProvider.createToken(eq("testUser"), eq(Role.CUSTOMER)))
+        .willReturn("testAccessToken");
+
+    doThrow(new DataBaseException(ResponseCode.DATABASE_ERROR)).when(redisService)
+        .saveDataWithTTL(eq("testUser"), eq("testAccessToken"), eq(1L), eq(TimeUnit.HOURS));
+
+    // when
+    DataBaseException dataBaseException = assertThrows(DataBaseException.class,
+        () -> authServiceImplement.signIn(request));
+
+    // then
+    verify(memberRepository, times(1))
+        .findByMemberId(eq("testUser"));
+    verify(passwordEncoder, times(1))
+        .matches(eq("testPassword"), eq("encodedPassword"));
+    verify(jwtProvider, times(1))
+        .createToken(eq("testUser"), eq(Role.CUSTOMER));
+    verify(redisService, times(1))
+        .saveDataWithTTL(eq("testUser"), anyString(), eq(1L), eq(TimeUnit.HOURS));
+
+    assertThat(dataBaseException.getErrorCode()).isEqualTo(ResponseCode.DATABASE_ERROR);
+  }
+
+  @Test
+  @DisplayName("로그아웃 - 성공")
+  void testSignOut_Success() {
+    // given
+    given(jwtProvider.equalMemberId(eq("testUser"), eq("accessToken")))
+        .willReturn(true);
+
+    willDoNothing().given(redisService).deleteToken(eq("testUser"));
+
+    // when
+    ResponseDto responseDto = authServiceImplement.signOut("testUser", "accessToken");
+
+    // then
+    verify(jwtProvider, times(1))
+        .equalMemberId(eq("testUser"), eq("accessToken"));
+    verify(redisService, times(1))
+        .deleteToken(eq("testUser"));
+
+    assertThat(responseDto.getCode()).isEqualTo(ResponseCode.SIGN_OUT_SUCCESS);
+  }
+
+  @Test
+  @DisplayName("로그아웃 - 실패 (사용자 불일치)")
+  void testSignOut_Fail_MemberUnMatched() {
+    // given
+    given(jwtProvider.equalMemberId(eq("testUser"), eq("accessToken")))
+        .willReturn(false);
+
+    // when
+    MemberException memberException = assertThrows(MemberException.class,
+        () -> authServiceImplement.signOut("testUser", "accessToken"));
+
+    // then
+    verify(jwtProvider, times(1))
+        .equalMemberId(eq("testUser"), eq("accessToken"));
+
+    assertThat(memberException.getErrorCode()).isEqualTo(ResponseCode.MEMBER_UNMATCHED);
+  }
+
+  @Test
+  @DisplayName("로그아웃 - 실패 (Redis 서버 에러)")
+  void testSignOut_Fail_RedisServerError() {
+    // given
+    given(jwtProvider.equalMemberId(eq("testUser"), eq("accessToken")))
+        .willReturn(true);
+
+    doThrow(new DataBaseException(ResponseCode.DATABASE_ERROR))
+        .when(redisService).deleteToken(eq("testUser"));
+
+    // when
+    DataBaseException dataBaseException = assertThrows(DataBaseException.class,
+        () -> authServiceImplement.signOut("testUser", "accessToken"));
+
+    // then
+    verify(jwtProvider, times(1))
+        .equalMemberId(eq("testUser"), eq("accessToken"));
+    verify(redisService, times(1))
+        .deleteToken(eq("testUser"));
+
+    assertThat(dataBaseException.getErrorCode()).isEqualTo(ResponseCode.DATABASE_ERROR);
+  }
+
 }

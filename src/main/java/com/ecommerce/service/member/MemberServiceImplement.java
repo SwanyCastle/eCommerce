@@ -7,10 +7,10 @@ import com.ecommerce.entity.Member;
 import com.ecommerce.exception.MemberException;
 import com.ecommerce.repository.MemberRepository;
 import com.ecommerce.type.ResponseCode;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -81,6 +81,7 @@ public class MemberServiceImplement implements MemberService {
    * @return Member
    */
   @Override
+  @Transactional(readOnly = true)
   public Member getMemberByMemberId(String memberId) {
 
     return memberRepository.findByMemberId(memberId)

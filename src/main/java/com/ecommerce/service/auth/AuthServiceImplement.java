@@ -13,10 +13,12 @@ import com.ecommerce.exception.DataBaseException;
 import com.ecommerce.exception.EmailException;
 import com.ecommerce.exception.MemberException;
 import com.ecommerce.provider.EmailProvider;
+import com.ecommerce.provider.JwtProvider;
 import com.ecommerce.repository.MemberRepository;
 import com.ecommerce.service.redis.RedisService;
 import com.ecommerce.type.ResponseCode;
 import com.ecommerce.utils.CertificationNumber;
+import jakarta.transaction.Transactional;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +33,7 @@ public class AuthServiceImplement implements AuthService {
   private final MemberRepository memberRepository;
   private final EmailProvider emailProvider;
   private final RedisService redisService;
+  private final JwtProvider jwtProvider;
 
   private final PasswordEncoder passwordEncoder;
 
@@ -104,6 +107,7 @@ public class AuthServiceImplement implements AuthService {
    * @return UserDto
    */
   @Override
+  @Transactional
   public MemberDto signUp(SignUpDto.Request request) {
 
     String userId = request.getMemberId();
@@ -134,7 +138,7 @@ public class AuthServiceImplement implements AuthService {
    * @return Member
    */
   @Override
-  public Member signIn(SignInDto.Request request) {
+  public SignInDto.Response signIn(SignInDto.Request request) {
 
     Member member = memberRepository.findByMemberId(request.getMemberId())
         .orElseThrow(() -> new MemberException(ResponseCode.MEMBER_NOT_FOUND));
@@ -144,7 +148,32 @@ public class AuthServiceImplement implements AuthService {
       throw new MemberException(ResponseCode.PASSWORD_UNMATCHED);
     }
 
-    return member;
+    String token = jwtProvider.createToken(member.getMemberId(), member.getRole());
+
+    redisService.saveDataWithTTL(member.getMemberId(), token, 1, TimeUnit.HOURS);
+
+    return SignInDto.Response.builder()
+        .token(token)
+        .build();
+
+  }
+
+  /**
+   * 로그아웃
+   * @param memberId
+   * @return ResponseDto
+   */
+  @Override
+  public ResponseDto signOut(String memberId, String token) {
+
+    boolean isEqual = jwtProvider.equalMemberId(memberId, token);
+    if (!isEqual) {
+      throw new MemberException(ResponseCode.MEMBER_UNMATCHED);
+    }
+
+    redisService.deleteToken(memberId);
+
+    return ResponseDto.getResponseBody(ResponseCode.SIGN_OUT_SUCCESS);
 
   }
 
