@@ -21,6 +21,7 @@ public class MemberServiceImplement implements MemberService {
 
   /**
    * 회원 정보 조회
+   *
    * @param memberId
    * @return MemberDto
    */
@@ -33,6 +34,7 @@ public class MemberServiceImplement implements MemberService {
 
   /**
    * 회원 정보 수정
+   *
    * @param memberId
    * @param request
    * @return MemberDto
@@ -62,6 +64,7 @@ public class MemberServiceImplement implements MemberService {
 
   /**
    * 회원 정보 삭제
+   *
    * @param memberId
    * @return ResponseDto
    */
@@ -77,6 +80,7 @@ public class MemberServiceImplement implements MemberService {
 
   /**
    * Member Id 로 MemberRepository 에서 멤버 정보 조회
+   *
    * @param memberId
    * @return Member
    */

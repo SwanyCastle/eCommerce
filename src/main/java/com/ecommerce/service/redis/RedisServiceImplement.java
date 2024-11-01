@@ -15,6 +15,7 @@ public class RedisServiceImplement implements RedisService {
 
   /**
    * 유효시간을 포함한 key, value 데이터 저장
+   *
    * @param key
    * @param value
    * @param timeout
@@ -27,6 +28,7 @@ public class RedisServiceImplement implements RedisService {
 
   /**
    * 로그아웃시 Redis 에 저장된 Token 정보 삭제
+   *
    * @param key
    */
   @Override
@@ -36,6 +38,7 @@ public class RedisServiceImplement implements RedisService {
 
   /**
    * 이메일로 전송받은 인증 번호 확인
+   *
    * @param key
    * @param certificationNumber
    * @return boolean
@@ -61,6 +64,7 @@ public class RedisServiceImplement implements RedisService {
 
   /**
    * 이메일 인증을 완료했는지 여부 확인
+   *
    * @param key
    * @return boolean
    */

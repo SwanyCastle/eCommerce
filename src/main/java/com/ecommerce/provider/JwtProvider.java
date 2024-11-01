@@ -35,8 +35,8 @@ public class JwtProvider {
   private String secretKey;
 
   /**
-   * 사용자 ID, 권한(Role) 정보를 포함한
-   * JWT 토큰 생성
+   * 사용자 ID, 권한(Role) 정보를 포함한 JWT 토큰 생성
+   *
    * @param memberId
    * @return String
    */
@@ -54,9 +54,8 @@ public class JwtProvider {
   }
 
   /**
-   * SecurityContextHolder 에 등록하기위한
-   * 토큰에 있는 사용자 객체 및 권한 정보로
-   * Authentication 객체 생성
+   * SecurityContextHolder 에 등록하기위한 토큰에 있는 사용자 객체 및 권한 정보로 Authentication 객체 생성
+   *
    * @param jwt
    * @return Authentication
    */
@@ -68,6 +67,7 @@ public class JwtProvider {
 
   /**
    * 토큰에 있는 사용자 ID 추출
+   *
    * @param token
    * @return String
    */
@@ -77,6 +77,7 @@ public class JwtProvider {
 
   /**
    * 토큰에 있는 사용자 ID 와 요청으로 들어오 사용자 ID 비교
+   *
    * @param memberId
    * @param token
    * @return boolean
@@ -91,6 +92,7 @@ public class JwtProvider {
 
   /**
    * 파싱한 토큰이 유효한지 검증
+   *
    * @param token
    * @return boolean
    */
@@ -109,8 +111,8 @@ public class JwtProvider {
   }
 
   /**
-   * 토큰 서명, 유효기간 검증 및
-   * 파싱 (String -> Claims)
+   * 토큰 서명, 유효기간 검증 및 파싱 (String -> Claims)
+   *
    * @param token
    * @return Claims
    */

@@ -134,6 +134,7 @@ public class AuthServiceImplement implements AuthService {
 
   /**
    * 로그인
+   *
    * @param request
    * @return Member
    */
@@ -160,6 +161,7 @@ public class AuthServiceImplement implements AuthService {
 
   /**
    * 로그아웃
+   *
    * @param memberId
    * @return ResponseDto
    */
@@ -179,6 +181,7 @@ public class AuthServiceImplement implements AuthService {
 
   /**
    * Member Id  존재 여부 확인
+   *
    * @param userId
    */
   @Override

@@ -48,9 +48,9 @@ public class RedisRepositoryImplement implements RedisRepository {
 
       return redisTemplate.opsForValue().get(key);
 
-    } catch(Exception e) {
-        e.printStackTrace();
-        throw new DataBaseException(ResponseCode.DATABASE_ERROR);
+    } catch (Exception e) {
+      e.printStackTrace();
+      throw new DataBaseException(ResponseCode.DATABASE_ERROR);
     }
   }
 

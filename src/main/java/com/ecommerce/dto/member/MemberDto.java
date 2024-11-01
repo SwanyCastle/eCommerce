@@ -4,7 +4,11 @@ import com.ecommerce.entity.Member;
 import com.ecommerce.type.LoginType;
 import com.ecommerce.type.Role;
 import java.time.LocalDateTime;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter

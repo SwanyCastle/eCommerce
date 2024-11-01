@@ -25,6 +25,7 @@ public class MemberController {
 
   /**
    * 회원 정보 조회
+   *
    * @param memberId
    * @return ResponseEntity<MemberDto>
    */
@@ -36,6 +37,7 @@ public class MemberController {
 
   /**
    * 회원 정보 수정
+   *
    * @param memberId
    * @param updateRequest
    * @return ResponseEntity<MemberDto>
@@ -51,6 +53,7 @@ public class MemberController {
 
   /**
    * 회원 정보 삭제
+   *
    * @param memberId
    * @return ResponseEntity<ResponseDto>
    */

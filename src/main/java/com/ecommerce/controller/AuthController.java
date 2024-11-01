@@ -28,6 +28,7 @@ public class AuthController {
 
   /**
    * 사용자 ID
+   *
    * @param request
    * @return ResponseEntity<ResponseDto>
    */
@@ -41,6 +42,7 @@ public class AuthController {
 
   /**
    * 이메일 인증
+   *
    * @param request
    * @return ResponseEntity<ResponseDto>
    */
@@ -54,6 +56,7 @@ public class AuthController {
 
   /**
    * 인증번호 확인
+   *
    * @param request
    * @return ResponseEntity<ResponseDto>
    */
@@ -67,6 +70,7 @@ public class AuthController {
 
   /**
    * 회원가입
+   *
    * @param request
    * @return UserDto
    */
@@ -80,6 +84,7 @@ public class AuthController {
 
   /**
    * 로그인
+   *
    * @param requestBody
    * @return ResponseEntity<SignInDto.Response>
    */
@@ -92,6 +97,7 @@ public class AuthController {
 
   /**
    * 로그아웃
+   *
    * @param memberId
    * @return ResponseEntity<ResponseDto>
    */

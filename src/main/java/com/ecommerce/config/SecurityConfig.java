@@ -39,6 +39,7 @@ public class SecurityConfig {
 
   /**
    * Security Filter Chain 설정
+   *
    * @param httpSecurity
    * @return SecurityFilterChain
    * @throws Exception
@@ -79,6 +80,7 @@ public class SecurityConfig {
 
   /**
    * Cors 정책 설정
+   *
    * @return CorsConfigurationSource
    */
   @Bean
@@ -97,6 +99,7 @@ public class SecurityConfig {
 
   /**
    * 사용자 비밀번호 암호화를 위한 인코더 설정
+   *
    * @return PasswordEncoder
    */
   @Bean
@@ -114,6 +117,7 @@ class FailedAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
   /**
    * 접근 권한이 없거나 접근 실패시 에러 처리
+   *
    * @param request
    * @param response
    * @param authException
