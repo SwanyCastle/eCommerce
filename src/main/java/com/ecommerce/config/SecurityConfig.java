@@ -3,6 +3,7 @@ package com.ecommerce.config;
 import com.ecommerce.dto.ResponseDto;
 import com.ecommerce.filter.JwtAuthenticationFilter;
 import com.ecommerce.type.ResponseCode;
+import com.ecommerce.utils.OAuth2SuccessHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,6 +21,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -36,6 +38,8 @@ public class SecurityConfig {
 
   private final JwtAuthenticationFilter jwtAuthenticationFilter;
   private final FailedAuthenticationEntryPoint failedAuthenticationEntryPoint;
+  private final DefaultOAuth2UserService oAuth2UserService;
+  private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
   /**
    * Security Filter Chain 설정
@@ -68,6 +72,12 @@ public class SecurityConfig {
             )
             .permitAll()
             .anyRequest().authenticated()
+        )
+        .oauth2Login(oauth2 -> oauth2
+            .authorizationEndpoint(endpoint -> endpoint.baseUri("/api/v1/auth/oauth2"))
+            .redirectionEndpoint(endpoint -> endpoint.baseUri("/oauth2/callback/*"))
+            .userInfoEndpoint(endpoint -> endpoint.userService(oAuth2UserService))
+            .successHandler(oAuth2SuccessHandler)
         )
         .exceptionHandling(exceptionHandling -> exceptionHandling
             .authenticationEntryPoint(failedAuthenticationEntryPoint)
