@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 public class OAuth2MemberServiceImplement extends DefaultOAuth2UserService {
 
   private final MemberRepository memberRepository;
+  private final ObjectMapper objectMapper;
 
   /**
    * OAuth Server 에 요청을 보낸 후 redirect 로 각 소셜 로그인으로 로그인한 유저의 정보를 받아 Ecommerce Application DB 에 저장후
@@ -36,18 +37,34 @@ public class OAuth2MemberServiceImplement extends DefaultOAuth2UserService {
     OAuth2User oAuth2User = super.loadUser(request);
     String oauthClientName = request.getClientRegistration().getClientName();
 
-    ObjectMapper objectMapper = new ObjectMapper();
+    Member member = createSnsMember(oauthClientName, oAuth2User);
+    ;
 
-    Member member = null;
+    memberRepository.save(member);
+
+    return new CustomOAuth2Member(member.getMemberId());
+
+  }
+
+  /**
+   * OAuth Server 에 요청을 보낸 후 redirect 로 각 소셜 로그인으로 로그인한 유저의 정보를 받아 Ecommerce Application DB 에 저장하기
+   * 위해 Member 생성
+   *
+   * @param oauthClientName
+   * @param oAuth2User
+   * @return Member
+   */
+  private Member createSnsMember(String oauthClientName, OAuth2User oAuth2User) {
 
     switch (oauthClientName) {
+
       case "kakao" -> {
         KakaoResponse kakaoResponse = objectMapper.convertValue(oAuth2User.getAttributes(),
             KakaoResponse.class);
 
         String kakaoMemberId = "kakao_" + kakaoResponse.getId();
 
-        member = memberRepository.findByMemberId(kakaoMemberId)
+        return memberRepository.findByMemberId(kakaoMemberId)
             .orElse(Member.builder()
                 .memberId(kakaoMemberId)
                 .memberName(kakaoResponse.getKakao_account().getProfile().getNickname())
@@ -57,13 +74,14 @@ public class OAuth2MemberServiceImplement extends DefaultOAuth2UserService {
                 .loginType(LoginType.KAKAO)
                 .build());
       }
+
       case "naver" -> {
         NaverResponse naverResponse = objectMapper.convertValue(oAuth2User.getAttributes(),
             NaverResponse.class);
 
         String naverMemberId = "naver_" + naverResponse.getResponse().getId();
 
-        member = memberRepository.findByMemberId(naverMemberId)
+        return memberRepository.findByMemberId(naverMemberId)
             .orElse(Member.builder()
                 .memberId(naverMemberId)
                 .memberName(naverResponse.getResponse().getName())
@@ -72,15 +90,12 @@ public class OAuth2MemberServiceImplement extends DefaultOAuth2UserService {
                 .role(Role.CUSTOMER)
                 .loginType(LoginType.NAVER)
                 .build());
-
       }
+
       default -> throw new OAuth2AuthenticationException(
           ResponseCode.UNSUPPORTED_OAUTH_PROVIDER.getDescription());
+
     }
-
-    memberRepository.save(member);
-
-    return new CustomOAuth2Member(member.getMemberId());
 
   }
 
