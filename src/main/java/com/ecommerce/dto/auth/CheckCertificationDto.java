@@ -17,7 +17,7 @@ public class CheckCertificationDto {
   public static class Request {
 
     @NotBlank
-    private String userId;
+    private String memberId;
 
     @NotBlank
     private String certificationNumber;

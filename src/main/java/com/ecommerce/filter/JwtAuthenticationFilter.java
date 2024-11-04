@@ -24,8 +24,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   private final JwtProvider jwtProvider;
 
   /**
-   * Security Config.java 에서 허용한 EndPoint 이외에
-   * 요청에서 토큰이 존재하고, 유효한지 검사후 다음 필터 또는 controller 로 전달
+   * Security Config.java 에서 허용한 EndPoint 이외에 요청에서 토큰이 존재하고, 유효한지 검사후 다음 필터 또는 controller 로 전달
+   *
    * @param request
    * @param response
    * @param filterChain
@@ -49,6 +49,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   /**
    * 들어온 요청 헤더에서 토큰 정보 추출
+   *
    * @param request
    * @return String
    */

@@ -4,22 +4,23 @@ import com.ecommerce.dto.ResponseDto;
 import com.ecommerce.dto.auth.CheckCertificationDto;
 import com.ecommerce.dto.auth.EmailCertificationDto;
 import com.ecommerce.dto.auth.IdDuplicateCheckDto;
+import com.ecommerce.dto.auth.SignInDto;
 import com.ecommerce.dto.auth.SignUpDto;
-import com.ecommerce.dto.user.UserDto;
-import com.ecommerce.entity.User;
-import org.springframework.http.ResponseEntity;
+import com.ecommerce.dto.member.MemberDto;
 
 public interface AuthService {
 
   ResponseDto idDuplicateCheck(IdDuplicateCheckDto.Request request);
 
-  ResponseDto emailCertification(
-      EmailCertificationDto.Request request);
+  ResponseDto emailCertification(EmailCertificationDto.Request request);
 
-  ResponseDto checkCertification(
-      CheckCertificationDto.Request request);
+  ResponseDto checkCertification(CheckCertificationDto.Request request);
 
-  UserDto signUp(SignUpDto.Request request);
+  MemberDto signUp(SignUpDto.Request request);
+
+  SignInDto.Response signIn(SignInDto.Request request);
+
+  ResponseDto signOut(String memberId, String token);
 
   void checkExistsUserId(String userId);
 

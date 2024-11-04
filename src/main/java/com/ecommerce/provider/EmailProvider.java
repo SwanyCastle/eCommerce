@@ -16,6 +16,7 @@ public class EmailProvider {
 
   /**
    * 인증메일 전송
+   *
    * @param email
    * @param certificationNumber
    * @return boolean
@@ -48,6 +49,7 @@ public class EmailProvider {
 
   /**
    * 인증메일 본문 내용 작성
+   *
    * @param certificationNumber
    * @return String
    */

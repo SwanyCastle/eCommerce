@@ -12,6 +12,7 @@ public class RedisConfig {
 
   /**
    * Redis 직렬화 설정 (JDK -> JSON)
+   *
    * @param redisConnectionFactory
    * @return RedisTemplate<String, Object>
    */

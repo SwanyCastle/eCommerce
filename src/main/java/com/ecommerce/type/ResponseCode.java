@@ -17,10 +17,13 @@ public enum ResponseCode {
   CERTIFICATION_NUMBER_SUCCESS("정상적으로 인증되었습니다."),
 
   AVAILABLE_USER_ID("사용 가능한 사용자 ID 입니다."),
-  USER_NOT_FOUND("사용자가 존재하지 않습니다."),
+  MEMBER_NOT_FOUND("사용자가 존재하지 않습니다."),
+  MEMBER_DELETE_SUCCESS("사용자 정보를 정상적으로 삭제 했습니다."),
   PASSWORD_UNMATCHED("비밀번호가 일치하지 않습니다."),
-  USER_ALREADY_EXISTS("이미 존재하는 사용자 입니다."),
+  MEMBER_ALREADY_EXISTS("이미 존재하는 사용자 입니다."),
+  MEMBER_UNMATCHED("사용자 정보가 일치하지 않습니다."),
   SIGN_IN_FAIL("로그인을 실패했습니다."),
+  SIGN_OUT_SUCCESS("성공적으로 로그아웃 되었습니다."),
 
   MAIL_SEND_SUCCESS("메일이 정상적으로 전송되었습니다."),
   MAIL_SEND_FAIL("메일 전송을 실패했습니다."),
@@ -31,7 +34,9 @@ public enum ResponseCode {
 
   REVIEW_NOT_FOUND("리뷰가 존재하지 않습니다."),
   REVIEW_ALREADY_EXISTS("리뷰가 이미 존재 합니다."),
-  REVIEW_NO_AUTHORIZATION("리뷰 작성할 권한이 없습니다.");
+  REVIEW_NO_AUTHORIZATION("리뷰 작성할 권한이 없습니다."),
+
+  UNSUPPORTED_OAUTH_PROVIDER("지원되지 않는 OAuth 입니다.");
 
   private final String description;
 
