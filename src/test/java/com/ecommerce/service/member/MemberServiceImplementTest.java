@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -13,6 +14,7 @@ import com.ecommerce.dto.member.UpdateMemberDto;
 import com.ecommerce.entity.Member;
 import com.ecommerce.exception.MemberException;
 import com.ecommerce.repository.MemberRepository;
+import com.ecommerce.service.auth.AuthService;
 import com.ecommerce.type.LoginType;
 import com.ecommerce.type.ResponseCode;
 import com.ecommerce.type.Role;
@@ -30,6 +32,9 @@ class MemberServiceImplementTest {
 
   @Mock
   private MemberRepository memberRepository;
+
+  @Mock
+  private AuthService authService;
 
   @Mock
   private PasswordEncoder passwordEncoder;
@@ -56,20 +61,40 @@ class MemberServiceImplementTest {
         .willReturn(Optional.ofNullable(member));
 
     // when
-    Member foundMember = memberServiceImplement.getMemberByMemberId("testUser");
+    MemberDto foundMember = memberServiceImplement
+        .getMemberDetails("testUser", "token");
 
     // then
+    verify(authService, times(1))
+        .equalToMemberIdFromToken(eq("testUser"), eq("token"));
     verify(memberRepository, times(1))
         .findByMemberId(eq("testUser"));
 
     assertThat(foundMember.getMemberId()).isEqualTo("testUser");
     assertThat(foundMember.getMemberName()).isEqualTo("test");
     assertThat(foundMember.getEmail()).isEqualTo("test@email.com");
-    assertThat(foundMember.getPassword()).isEqualTo("encodedPassword");
     assertThat(foundMember.getPhoneNumber()).isEqualTo("01011112222");
     assertThat(foundMember.getAddress()).isEqualTo("test시 test구 test로 111");
     assertThat(foundMember.getRole()).isEqualTo(Role.CUSTOMER);
     assertThat(foundMember.getLoginType()).isEqualTo(LoginType.APP);
+  }
+
+  @Test
+  @DisplayName("멤버 정보 조회 - 실패 (토큰에 있는 멤버 정보와 불일치)")
+  void testGetMemberDetails_Fail_MemberUnMatched() {
+    // given
+    doThrow(new MemberException(ResponseCode.MEMBER_UNMATCHED))
+        .when(authService).equalToMemberIdFromToken(eq("testUser"), eq("token"));
+
+    // when
+    MemberException memberException = assertThrows(MemberException.class,
+        () -> memberServiceImplement.getMemberDetails("testUser", "token"));
+
+    // then
+    verify(authService, times(1))
+        .equalToMemberIdFromToken(eq("testUser"), eq("token"));
+
+    assertThat(memberException.getErrorCode()).isEqualTo(ResponseCode.MEMBER_UNMATCHED);
   }
 
   @Test
@@ -81,9 +106,11 @@ class MemberServiceImplementTest {
 
     // when
     MemberException memberException = assertThrows(MemberException.class,
-        () -> memberServiceImplement.getMemberByMemberId("testUser"));
+        () -> memberServiceImplement.getMemberDetails("testUser", "token"));
 
     // then
+    verify(authService, times(1))
+        .equalToMemberIdFromToken(eq("testUser"), eq("token"));
     verify(memberRepository, times(1))
         .findByMemberId(eq("testUser"));
 
@@ -116,9 +143,13 @@ class MemberServiceImplementTest {
 
     // when
     MemberDto updateMember =
-        memberServiceImplement.updateMember("testUser", updateRequest);
+        memberServiceImplement.updateMember("testUser", updateRequest, "token");
 
     // then
+    verify(authService, times(1))
+        .equalToMemberIdFromToken(eq("testUser"), eq("token"));
+    verify(passwordEncoder, times(1))
+        .encode(eq("updatePassword"));
     verify(memberRepository, times(1))
         .findByMemberId(eq("testUser"));
 
@@ -129,6 +160,30 @@ class MemberServiceImplementTest {
     assertThat(updateMember.getAddress()).isEqualTo("업데이트된 주소");
     assertThat(updateMember.getRole()).isEqualTo(Role.CUSTOMER);
     assertThat(updateMember.getLoginType()).isEqualTo(LoginType.APP);
+  }
+
+  @Test
+  @DisplayName("멤버 정보 수정 - 실패 (토큰에 있는 멤버 정보와 불일치)")
+  void testUpdateMember_Fail_MemberUnMatched() {
+    // given
+    UpdateMemberDto updateRequest = UpdateMemberDto.builder()
+        .password("updatePassword")
+        .address("업데이트된 주소")
+        .phoneNumber("업데이트된 휴대폰 번호")
+        .build();
+
+    doThrow(new MemberException(ResponseCode.MEMBER_UNMATCHED))
+        .when(authService).equalToMemberIdFromToken(eq("testUser"), eq("token"));
+
+    // when
+    MemberException memberException = assertThrows(MemberException.class,
+        () -> memberServiceImplement.updateMember("testUser", updateRequest, "token"));
+
+    // then
+    verify(authService, times(1))
+        .equalToMemberIdFromToken(eq("testUser"), eq("token"));
+
+    assertThat(memberException.getErrorCode()).isEqualTo(ResponseCode.MEMBER_UNMATCHED);
   }
 
   @Test
@@ -146,9 +201,11 @@ class MemberServiceImplementTest {
 
     // when
     MemberException memberException = assertThrows(MemberException.class,
-        () -> memberServiceImplement.updateMember("testUser", updateRequest));
+        () -> memberServiceImplement.updateMember("testUser", updateRequest, "token"));
 
     // then
+    verify(authService, times(1))
+        .equalToMemberIdFromToken(eq("testUser"), eq("token"));
     verify(memberRepository, times(1))
         .findByMemberId(eq("testUser"));
 
@@ -174,13 +231,33 @@ class MemberServiceImplementTest {
         .willReturn(Optional.ofNullable(member));
 
     // when
-    ResponseDto responseDto = memberServiceImplement.deleteMember("testUser");
+    ResponseDto responseDto = memberServiceImplement.deleteMember("testUser", "token");
 
     // then
+    verify(authService, times(1))
+        .equalToMemberIdFromToken(eq("testUser"), eq("token"));
     verify(memberRepository, times(1))
         .findByMemberId(eq("testUser"));
 
     assertThat(responseDto.getCode()).isEqualTo(ResponseCode.MEMBER_DELETE_SUCCESS);
+  }
+
+  @Test
+  @DisplayName("멤버 정보 삭제 - 실패 (토큰에 있는 멤버 정보와 불일치)")
+  void testDeleteMember_Fail_MemberUnMatched() {
+    // given
+    doThrow(new MemberException(ResponseCode.MEMBER_UNMATCHED))
+        .when(authService).equalToMemberIdFromToken(eq("testUser"), eq("token"));
+
+    // when
+    MemberException memberException = assertThrows(MemberException.class,
+        () -> memberServiceImplement.deleteMember("testUser", "token"));
+
+    // then
+    verify(authService, times(1))
+        .equalToMemberIdFromToken(eq("testUser"), eq("token"));
+
+    assertThat(memberException.getErrorCode()).isEqualTo(ResponseCode.MEMBER_UNMATCHED);
   }
 
   @Test
@@ -192,9 +269,11 @@ class MemberServiceImplementTest {
 
     // when
     MemberException memberException = assertThrows(MemberException.class,
-        () -> memberServiceImplement.deleteMember("testUser"));
+        () -> memberServiceImplement.deleteMember("testUser", "token"));
 
     // then
+    verify(authService, times(1))
+        .equalToMemberIdFromToken(eq("testUser"), eq("token"));
     verify(memberRepository, times(1))
         .findByMemberId(eq("testUser"));
 
