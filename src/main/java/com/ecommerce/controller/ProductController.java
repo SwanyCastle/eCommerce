@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,10 +26,14 @@ public class ProductController {
   private final ProductService productService;
 
   @PreAuthorize("hasRole('ROLE_SELLER')")
-  @PostMapping
-  public ProductDto.Response createProduct(@RequestBody ProductDto.Request request) {
+  @PostMapping("/seller/{memberId}")
+  public ProductDto.Response createProduct(
+      @PathVariable String memberId,
+      @RequestHeader("Authorization") String token,
+      @RequestBody ProductDto.Request request
+  ) {
 
-    return productService.createProduct(request);
+    return productService.createProduct(memberId, token, request);
 
   }
 
@@ -36,23 +41,24 @@ public class ProductController {
   public List<ProductDto.Response> getProductList(
       @RequestParam(required = false, defaultValue = "1") Integer page,
       @RequestParam(required = false, defaultValue = "") String search,
+      @RequestParam(required = false, defaultValue = "") String status,
       @RequestParam(required = false, defaultValue = "latest") String ordering
   ) {
 
-    return productService.getProductList(page, search, ordering);
+    return productService.getProductList(page, search, status, ordering);
 
   }
 
-  @PreAuthorize("hasRole('ROLE_SELLER')")
   @GetMapping("/seller/{memberId}")
   public List<ProductDto.Response> getProductListByMemberId(
       @PathVariable String memberId,
       @RequestParam(required = false, defaultValue = "1") Integer page,
       @RequestParam(required = false, defaultValue = "") String search,
+      @RequestParam(required = false, defaultValue = "") String status,
       @RequestParam(required = false, defaultValue = "latest") String ordering
   ) {
 
-    return productService.getProductListByMemberId(memberId, page, search, ordering);
+    return productService.getProductListByMemberId(memberId, page, search, status, ordering);
 
   }
 
@@ -67,18 +73,22 @@ public class ProductController {
   @PatchMapping("/{productId}")
   public ProductDto.Response updateProduct(
       @PathVariable Long productId,
+      @RequestHeader("Authorization") String token,
       @RequestBody UpdateProductDto updateRequest
   ) {
 
-    return productService.updateProduct(productId, updateRequest);
+    return productService.updateProduct(productId, token, updateRequest);
 
   }
 
   @PreAuthorize("hasRole('ROLE_SELLER')")
   @DeleteMapping("/{productId}")
-  public ResponseDto deleteProduct(@PathVariable Long productId) {
+  public ResponseDto deleteProduct(
+      @PathVariable Long productId,
+      @RequestHeader("Authorization") String token
+  ) {
 
-    return productService.deleteProduct(productId);
+    return productService.deleteProduct(productId, token);
 
   }
 

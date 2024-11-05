@@ -40,9 +40,6 @@ public class ProductDto {
 
     private ProductStatus status = ProductStatus.IN_STOCK;
 
-    @NotNull
-    private String memberId;
-
   }
 
   @Getter
@@ -59,7 +56,7 @@ public class ProductDto {
     private BigDecimal price;
     private ProductStatus status;
     private BigDecimal rating;
-    private MemberDto member;
+    private String seller;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -73,7 +70,7 @@ public class ProductDto {
           .price(product.getPrice())
           .status(product.getStatus())
           .rating(product.getRating())
-          .member(MemberDto.fromEntity(product.getMember()))
+          .seller(product.getMember().getMemberId())
           .createdAt(product.getCreatedAt())
           .updatedAt(product.getUpdateAt())
           .build();

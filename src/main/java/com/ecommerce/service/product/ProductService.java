@@ -8,18 +8,21 @@ import java.util.List;
 
 public interface ProductService {
 
-  ProductDto.Response createProduct(ProductDto.Request request);
+  ProductDto.Response createProduct(String memberId, String token, ProductDto.Request request);
 
-  List<ProductDto.Response> getProductList(Integer page, String search, String ordering);
+  List<ProductDto.Response> getProductList(
+      Integer page, String search, String status, String ordering
+  );
 
-  List<ProductDto.Response> getProductListByMemberId(String memberId, Integer page, String search,
-      String ordering);
+  List<ProductDto.Response> getProductListByMemberId(
+      String memberId, Integer page, String search, String status, String ordering
+  );
 
   ProductDto.Response getProductDetails(Long productId);
 
-  ProductDto.Response updateProduct(Long productId, UpdateProductDto updateRequest);
+  ProductDto.Response updateProduct(Long productId, String token, UpdateProductDto updateRequest);
 
-  ResponseDto deleteProduct(Long productId);
+  ResponseDto deleteProduct(Long productId, String token);
 
   Product getProductById(Long productId);
 
