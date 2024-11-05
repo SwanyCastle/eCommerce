@@ -26,6 +26,7 @@ public class MemberServiceImplement implements MemberService {
    * @return MemberDto
    */
   @Override
+  @Transactional(readOnly = true)
   public MemberDto getMemberDetails(String memberId) {
 
     return MemberDto.fromEntity(getMemberByMemberId(memberId));
