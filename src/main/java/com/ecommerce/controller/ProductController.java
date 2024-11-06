@@ -4,6 +4,7 @@ import com.ecommerce.dto.ResponseDto;
 import com.ecommerce.dto.product.ProductDto;
 import com.ecommerce.dto.product.UpdateProductDto;
 import com.ecommerce.service.product.ProductService;
+import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -30,7 +31,7 @@ public class ProductController {
   public ProductDto.Response createProduct(
       @PathVariable String memberId,
       @RequestHeader("Authorization") String token,
-      @RequestBody ProductDto.Request request
+      @RequestBody @Valid ProductDto.Request request
   ) {
 
     return productService.createProduct(memberId, token, request);
@@ -74,7 +75,7 @@ public class ProductController {
   public ProductDto.Response updateProduct(
       @PathVariable Long productId,
       @RequestHeader("Authorization") String token,
-      @RequestBody UpdateProductDto updateRequest
+      @RequestBody @Valid UpdateProductDto updateRequest
   ) {
 
     return productService.updateProduct(productId, token, updateRequest);
