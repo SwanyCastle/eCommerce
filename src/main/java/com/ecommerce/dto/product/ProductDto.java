@@ -37,6 +37,9 @@ public class ProductDto {
     @DecimalMin(value = "0.0", inclusive = false)
     private BigDecimal price;
 
+    @Builder.Default
+    private ProductStatus status = ProductStatus.IN_STOCK;
+
   }
 
   @Getter
