@@ -1,6 +1,5 @@
 package com.ecommerce.dto.product;
 
-import com.ecommerce.dto.member.MemberDto;
 import com.ecommerce.entity.Product;
 import com.ecommerce.type.ProductStatus;
 import jakarta.validation.constraints.DecimalMin;
@@ -37,8 +36,6 @@ public class ProductDto {
     @NotNull
     @DecimalMin(value = "0.0", inclusive = false)
     private BigDecimal price;
-
-    private ProductStatus status = ProductStatus.IN_STOCK;
 
   }
 
