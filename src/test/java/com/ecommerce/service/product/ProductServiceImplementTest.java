@@ -10,6 +10,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import com.ecommerce.dto.ResponseDto;
 import com.ecommerce.dto.product.ProductDto;
 import com.ecommerce.dto.product.UpdateProductDto;
 import com.ecommerce.entity.Member;
@@ -812,8 +813,8 @@ class ProductServiceImplementTest {
         .build();
 
     Product product = Product.builder()
-        .productName("testProductName1")
-        .description("testProductDescription1")
+        .productName("testProductName")
+        .description("testProductDescription")
         .stockQuantity(3)
         .price(BigDecimal.valueOf(10001.0))
         .status(ProductStatus.NO_STOCK)
@@ -829,6 +830,105 @@ class ProductServiceImplementTest {
     // when
     MemberException memberException = assertThrows(MemberException.class,
         () -> productServiceImplement.updateProduct(1L, "token", updateRequest));
+
+    // then
+    verify(productRepository, times(1)).findById(eq(1L));
+    verify(authService, times(1))
+        .equalToMemberIdFromToken(eq(member.getMemberId()), eq("token"));
+
+    assertThat(memberException.getErrorCode()).isEqualTo(ResponseCode.MEMBER_UNMATCHED);
+  }
+
+  @Test
+  @DisplayName("상품 정보 삭제 - 성공")
+  void testDeleteProduct_Success() {
+    // given
+    Member member = Member.builder()
+        .memberId("testUser")
+        .memberName("test")
+        .email("test@email.com")
+        .password("encodedPassword")
+        .phoneNumber("01011112222")
+        .address("test시 test구 test로 111")
+        .role(Role.SELLER)
+        .loginType(LoginType.APP)
+        .build();
+
+    Product product = Product.builder()
+        .productName("testProductName")
+        .description("testProductDescription")
+        .stockQuantity(3)
+        .price(BigDecimal.valueOf(10001.0))
+        .status(ProductStatus.NO_STOCK)
+        .rating(BigDecimal.ZERO)
+        .member(member)
+        .build();
+
+    given(productRepository.findById(1L)).willReturn(Optional.ofNullable(product));
+
+    willDoNothing().given(authService)
+        .equalToMemberIdFromToken(eq(member.getMemberId()), eq("token"));
+
+    // when
+    ResponseDto responseDto = productServiceImplement.deleteProduct(1L, "token");
+
+    // then
+    verify(productRepository, times(1)).findById(eq(1L));
+    verify(authService, times(1))
+        .equalToMemberIdFromToken(eq(member.getMemberId()), eq("token"));
+
+    assertThat(responseDto.getCode()).isEqualTo(ResponseCode.PRODUCT_DELETE_SUCCESS);
+  }
+
+  @Test
+  @DisplayName("상품 정보 삭제 - 실패 (존재하지 않는 상품)")
+  void testDeleteProduct_Fail_ProductNotFound() {
+    // given
+    given(productRepository.findById(1L)).willReturn(Optional.empty());
+
+    // when
+    ProductException productException = assertThrows(ProductException.class,
+        () -> productServiceImplement.deleteProduct(1L, "token"));
+
+    // then
+    verify(productRepository, times(1)).findById(eq(1L));
+
+    assertThat(productException.getErrorCode()).isEqualTo(ResponseCode.PRODUCT_NOT_FOUND);
+  }
+
+  @Test
+  @DisplayName("상품 정보 삭제 - 실패 (토큰에 있는 멤버 정보와 불일치)")
+  void testDeleteProduct_Fail_MemberUnMatched() {
+    // given
+    Member member = Member.builder()
+        .memberId("testUser")
+        .memberName("test")
+        .email("test@email.com")
+        .password("encodedPassword")
+        .phoneNumber("01011112222")
+        .address("test시 test구 test로 111")
+        .role(Role.SELLER)
+        .loginType(LoginType.APP)
+        .build();
+
+    Product product = Product.builder()
+        .productName("testProductName")
+        .description("testProductDescription")
+        .stockQuantity(3)
+        .price(BigDecimal.valueOf(10001.0))
+        .status(ProductStatus.NO_STOCK)
+        .rating(BigDecimal.ZERO)
+        .member(member)
+        .build();
+
+    given(productRepository.findById(1L)).willReturn(Optional.ofNullable(product));
+
+    doThrow(new MemberException(ResponseCode.MEMBER_UNMATCHED))
+        .when(authService).equalToMemberIdFromToken(eq(member.getMemberId()), eq("token"));
+
+    // when
+    MemberException memberException = assertThrows(MemberException.class,
+        () -> productServiceImplement.deleteProduct(1L, "token"));
 
     // then
     verify(productRepository, times(1)).findById(eq(1L));
