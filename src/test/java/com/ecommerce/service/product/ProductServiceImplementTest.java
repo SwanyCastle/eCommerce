@@ -388,4 +388,269 @@ class ProductServiceImplementTest {
     assertThat(productList.getSize()).isEqualTo(0);
   }
 
+  @Test
+  @DisplayName("특정 판매자 상품 목록 조회 - 성공 (상품 상태 X)")
+  void testGetProductListByMemberId_Success_ProductStatusIsNull() {
+    // given
+    Sort sort = Sort.by(Direction.DESC, "createdAt");
+    Pageable pageable = PageRequest.of(0, TEST_PAGE_SIZE, sort);
+
+    Member member = Member.builder()
+        .memberId("testUser")
+        .memberName("test")
+        .email("test@email.com")
+        .password("encodedPassword")
+        .phoneNumber("01011112222")
+        .address("test시 test구 test로 111")
+        .role(Role.SELLER)
+        .loginType(LoginType.APP)
+        .build();
+
+    List<Product> mockProducts = List.of(
+        Product.builder()
+            .productName("testProductName1")
+            .description("testProductDescription1")
+            .stockQuantity(3)
+            .price(BigDecimal.valueOf(10001.0))
+            .status(ProductStatus.IN_STOCK)
+            .rating(BigDecimal.ZERO)
+            .member(member)
+            .build(),
+        Product.builder()
+            .productName("testProductName2")
+            .description("testProductDescription2")
+            .stockQuantity(3)
+            .price(BigDecimal.valueOf(10002.0))
+            .status(ProductStatus.IN_STOCK)
+            .rating(BigDecimal.ZERO)
+            .member(member)
+            .build(),
+        Product.builder()
+            .productName("testProductName3")
+            .description("testProductDescription3")
+            .stockQuantity(3)
+            .price(BigDecimal.valueOf(10003.0))
+            .status(ProductStatus.IN_STOCK)
+            .rating(BigDecimal.ZERO)
+            .member(member)
+            .build(),
+        Product.builder()
+            .productName("testProductName4")
+            .description("testProductDescription4")
+            .stockQuantity(3)
+            .price(BigDecimal.valueOf(10004.0))
+            .status(ProductStatus.IN_STOCK)
+            .rating(BigDecimal.ZERO)
+            .member(member)
+            .build(),
+        Product.builder()
+            .productName("testProductName5")
+            .description("testProductDescription5")
+            .stockQuantity(3)
+            .price(BigDecimal.valueOf(10005.0))
+            .status(ProductStatus.IN_STOCK)
+            .rating(BigDecimal.ZERO)
+            .member(member)
+            .build()
+    );
+
+    Page<Product> products = new PageImpl<>(mockProducts);
+
+    given(memberService.getMemberByMemberId(eq("testUser"))).willReturn(member);
+    given(
+        productRepository.findByMemberAndProductNameContaining(
+            eq(member), eq("testProductName"), eq(pageable)
+        )
+    ).willReturn(products);
+
+    // when
+    Page<ProductDto.Response> productList =
+        productServiceImplement
+            .getProductListByMemberId(
+                "testUser", 1, "testProductName", ProductStatus.NONE, SortType.LATEST
+            );
+
+    // then
+    verify(memberService, times(1))
+        .getMemberByMemberId(eq("testUser"));
+    verify(productRepository, times(1))
+        .findByMemberAndProductNameContaining(
+            eq(member), eq("testProductName"), eq(pageable)
+        );
+
+    assertThat(productList).isNotNull();
+    assertThat(productList.getSize()).isEqualTo(5);
+    for (ProductDto.Response response : productList.getContent()) {
+      assertThat(response.getSeller()).isEqualTo("testUser");
+    }
+  }
+
+  @Test
+  @DisplayName("특정 판매자 상품 목록 조회 - 성공 (상품 상태 O)")
+  void testGetProductListByMemberId_Success_ProductStatus() {
+    // given
+    Sort sort = Sort.by(Direction.DESC, "createdAt");
+    Pageable pageable = PageRequest.of(0, TEST_PAGE_SIZE, sort);
+
+    Member member = Member.builder()
+        .memberId("testUser")
+        .memberName("test")
+        .email("test@email.com")
+        .password("encodedPassword")
+        .phoneNumber("01011112222")
+        .address("test시 test구 test로 111")
+        .role(Role.SELLER)
+        .loginType(LoginType.APP)
+        .build();
+
+    List<Product> mockProducts = List.of(
+        Product.builder()
+            .productName("testProductName1")
+            .description("testProductDescription1")
+            .stockQuantity(3)
+            .price(BigDecimal.valueOf(10001.0))
+            .status(ProductStatus.NO_STOCK)
+            .rating(BigDecimal.ZERO)
+            .member(member)
+            .build(),
+        Product.builder()
+            .productName("testProductName2")
+            .description("testProductDescription2")
+            .stockQuantity(3)
+            .price(BigDecimal.valueOf(10002.0))
+            .status(ProductStatus.NO_STOCK)
+            .rating(BigDecimal.ZERO)
+            .member(member)
+            .build(),
+        Product.builder()
+            .productName("testProductName3")
+            .description("testProductDescription3")
+            .stockQuantity(3)
+            .price(BigDecimal.valueOf(10003.0))
+            .status(ProductStatus.NO_STOCK)
+            .rating(BigDecimal.ZERO)
+            .member(member)
+            .build(),
+        Product.builder()
+            .productName("testProductName4")
+            .description("testProductDescription4")
+            .stockQuantity(3)
+            .price(BigDecimal.valueOf(10004.0))
+            .status(ProductStatus.NO_STOCK)
+            .rating(BigDecimal.ZERO)
+            .member(member)
+            .build(),
+        Product.builder()
+            .productName("testProductName5")
+            .description("testProductDescription5")
+            .stockQuantity(3)
+            .price(BigDecimal.valueOf(10005.0))
+            .status(ProductStatus.NO_STOCK)
+            .rating(BigDecimal.ZERO)
+            .member(member)
+            .build()
+    );
+
+    Page<Product> products = new PageImpl<>(mockProducts);
+
+    given(memberService.getMemberByMemberId(eq("testUser"))).willReturn(member);
+    given(
+        productRepository.findByMemberAndProductNameContainingAndStatus(
+            eq(member), eq("testProductName"), eq(ProductStatus.NO_STOCK), eq(pageable)
+        )
+    ).willReturn(products);
+
+    // when
+    Page<ProductDto.Response> productList =
+        productServiceImplement
+            .getProductListByMemberId(
+                "testUser", 1, "testProductName", ProductStatus.NO_STOCK, SortType.LATEST
+            );
+
+    // then
+    verify(memberService, times(1))
+        .getMemberByMemberId(eq("testUser"));
+    verify(productRepository, times(1))
+        .findByMemberAndProductNameContainingAndStatus(
+            eq(member), eq("testProductName"), eq(ProductStatus.NO_STOCK), eq(pageable)
+        );
+
+    assertThat(productList).isNotNull();
+    assertThat(productList.getSize()).isEqualTo(5);
+    for (ProductDto.Response response : productList.getContent()) {
+      assertThat(response.getStatus()).isEqualTo(ProductStatus.NO_STOCK);
+      assertThat(response.getSeller()).isEqualTo("testUser");
+    }
+  }
+
+  @Test
+  @DisplayName("특정 판매자 상품 목록 조회 - 해당 결과 값 없음")
+  void testGetProductListByMemberId_NoResult() {
+    // given
+    Sort sort = Sort.by(Direction.DESC, "createdAt");
+    Pageable pageable = PageRequest.of(0, TEST_PAGE_SIZE, sort);
+
+    Member member = Member.builder()
+        .memberId("testUser")
+        .memberName("test")
+        .email("test@email.com")
+        .password("encodedPassword")
+        .phoneNumber("01011112222")
+        .address("test시 test구 test로 111")
+        .role(Role.SELLER)
+        .loginType(LoginType.APP)
+        .build();
+
+    List<Product> mockProducts = List.of();
+
+    Page<Product> products = new PageImpl<>(mockProducts);
+
+    given(memberService.getMemberByMemberId(eq("testUser")))
+        .willReturn(member);
+    given(
+        productRepository.findByMemberAndProductNameContainingAndStatus(
+            eq(member), eq("aaa"), eq(ProductStatus.NO_STOCK), eq(pageable)
+        )
+    ).willReturn(products);
+
+    // when
+    Page<ProductDto.Response> productList =
+        productServiceImplement
+            .getProductListByMemberId(
+                "testUser", 1, "aaa", ProductStatus.NO_STOCK, SortType.LATEST
+            );
+
+    // then
+    verify(memberService, times(1))
+        .getMemberByMemberId(eq("testUser"));
+    verify(productRepository, times(1))
+        .findByMemberAndProductNameContainingAndStatus(
+            eq(member), eq("aaa"), eq(ProductStatus.NO_STOCK), eq(pageable)
+        );
+
+    assertThat(productList).isNotNull();
+    assertThat(productList.getSize()).isEqualTo(0);
+  }
+
+  @Test
+  @DisplayName("특정 판매자 상품 목록 조회 - 실패 (존재하지 않는 멤버)")
+  void testGetProductListByMemberId_Fail_MemberNotFound() {
+    // given
+    doThrow(new MemberException(ResponseCode.MEMBER_NOT_FOUND))
+        .when(memberService).getMemberByMemberId(eq("testUser"));
+
+    // when
+    MemberException memberException = assertThrows(MemberException.class,
+        () -> productServiceImplement
+            .getProductListByMemberId(
+                "testUser", 1, "aaa", ProductStatus.NO_STOCK, SortType.LATEST
+            ));
+
+    // then
+    verify(memberService, times(1))
+        .getMemberByMemberId(eq("testUser"));
+
+    assertThat(memberException.getErrorCode()).isEqualTo(ResponseCode.MEMBER_NOT_FOUND);
+  }
+
 }
