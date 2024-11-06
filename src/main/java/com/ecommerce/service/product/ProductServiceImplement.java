@@ -11,8 +11,8 @@ import com.ecommerce.service.auth.AuthService;
 import com.ecommerce.service.member.MemberService;
 import com.ecommerce.type.ProductStatus;
 import com.ecommerce.type.ResponseCode;
+import com.ecommerce.type.SortType;
 import java.math.BigDecimal;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -68,45 +68,26 @@ public class ProductServiceImplement implements ProductService {
    *
    * @param page
    * @param search
-   * @param ordering
+   * @param sortType
    * @return List<ProductDto.Response>
    */
   @Override
   @Transactional(readOnly = true)
-  public List<ProductDto.Response> getProductList(
-      Integer page, String search, String status, String ordering
+  public Page<ProductDto.Response> getProductList(
+      Integer page, String search, ProductStatus status, SortType sortType
   ) {
 
-    Sort sortType = setSortType(ordering);
+    Sort sort = setSortType(sortType);
 
-    ProductStatus productStatus = status.isEmpty() ? null : ProductStatus.valueOf(status);
+    Pageable pageable = PageRequest.of(page - 1, PAGE_SIZE, sort);
 
-    Pageable pageable = PageRequest.of(page - 1, PAGE_SIZE, sortType);
-
-    Page<Product> products = getProducts(search, productStatus, pageable);
-
-    return products.getContent().stream()
-        .map(ProductDto.Response::fromEntity)
-        .toList();
-
-  }
-
-  /**
-   * 전체 상품 목록 조회 (상품 상태 확인)
-   *
-   * @param search
-   * @param productStatus
-   * @param pageable
-   * @return Page<Product>
-   */
-  private Page<Product> getProducts(String search, ProductStatus productStatus, Pageable pageable) {
-
-    if (productStatus != null) {
-      return productRepository.findByProductNameContainingAndStatus(search, productStatus,
-          pageable);
+    if (status != ProductStatus.NONE) {
+      return productRepository.findByProductNameContainingAndStatus(search, status, pageable)
+          .map(ProductDto.Response::fromEntity);
     }
 
-    return productRepository.findByProductNameContaining(search, pageable);
+    return productRepository.findByProductNameContaining(search, pageable)
+        .map(ProductDto.Response::fromEntity);
 
   }
 
@@ -116,82 +97,58 @@ public class ProductServiceImplement implements ProductService {
    * @param memberId
    * @param page
    * @param search
-   * @param ordering
+   * @param sortType
    * @return List<ProductDto.Response>
    */
   @Override
   @Transactional(readOnly = true)
-  public List<ProductDto.Response> getProductListByMemberId(
-      String memberId, Integer page, String search, String status, String ordering
+  public Page<ProductDto.Response> getProductListByMemberId(
+      String memberId, Integer page, String search, ProductStatus status, SortType sortType
   ) {
-    Sort sortType = setSortType(ordering);
 
-    ProductStatus productStatus = status.isEmpty() ? null : ProductStatus.valueOf(status);
+    Sort sort = setSortType(sortType);
 
-    Pageable pageable = PageRequest.of(page - 1, PAGE_SIZE, sortType);
-
-    Page<Product> products = getProductsByMemberId(memberId, search, productStatus, pageable);
-
-    return products.getContent().stream()
-        .map(ProductDto.Response::fromEntity)
-        .toList();
-  }
-
-  /**
-   * 판매자 상품 목록 조회 (상품 상태 확인)
-   *
-   * @param memberId
-   * @param search
-   * @param productStatus
-   * @param pageable
-   * @return Page<Product>
-   */
-  private Page<Product> getProductsByMemberId(
-      String memberId, String search, ProductStatus productStatus, Pageable pageable
-  ) {
+    Pageable pageable = PageRequest.of(page - 1, PAGE_SIZE, sort);
 
     Member member = memberService.getMemberByMemberId(memberId);
 
-    if (productStatus != null) {
-      return productRepository.findByMemberAndProductNameContainingAndStatus(member, search,
-          productStatus,
-          pageable);
+    if (status != ProductStatus.NONE) {
+      return productRepository
+          .findByMemberAndProductNameContainingAndStatus(member, search, status, pageable)
+          .map(ProductDto.Response::fromEntity);
     }
 
-    return productRepository.findByMemberAndProductNameContaining(member, search, pageable);
+    return productRepository.findByMemberAndProductNameContaining(member, search, pageable)
+        .map(ProductDto.Response::fromEntity);
 
   }
 
   /**
    * 정렬 타입 세팅
    *
-   * @param ordering
+   * @param sortType
    * @return Sort
    */
-  private Sort setSortType(String ordering) {
-    switch (ordering) {
+  private Sort setSortType(SortType sortType) {
 
-      case "priceLow" -> {
+    switch (sortType) {
+      case LOW_PRICE -> {
         return Sort.by(Direction.ASC, "price");
       }
-
-      case "priceHigh" -> {
+      case HIGH_PRICE -> {
         return Sort.by(Direction.DESC, "price");
       }
-
-      case "ratingLow" -> {
+      case LOW_RATING -> {
         return Sort.by(Direction.ASC, "rating");
       }
-
-      case "ratingHigh" -> {
+      case HIGH_RATING -> {
         return Sort.by(Direction.DESC, "rating");
       }
-
       default -> {
         return Sort.by(Direction.DESC, "createdAt");
       }
-
     }
+
   }
 
   /**
@@ -225,33 +182,34 @@ public class ProductServiceImplement implements ProductService {
 
     authService.equalToMemberIdFromToken(product.getMember().getMemberId(), token);
 
-    if (updateRequest.getProductName() != null && !updateRequest.getProductName().isEmpty()) {
-      product.setProductName(updateRequest.getProductName());
-    }
+    product.setProductName(updateRequest.getProductName());
+    product.setDescription(updateRequest.getDescription());
+    product.setStockQuantity(updateRequest.getStockQuantity());
+    product.setPrice(updateRequest.getPrice());
 
-    if (updateRequest.getDescription() != null && !updateRequest.getDescription().isEmpty()) {
-      product.setDescription(updateRequest.getDescription());
-    }
-
-    if (updateRequest.getStockQuantity() != null) {
-      product.setStockQuantity(updateRequest.getStockQuantity());
-    }
-
-    if (updateRequest.getPrice() != null) {
-      product.setPrice(updateRequest.getPrice());
-    }
-
-    if (updateRequest.getStatus() != null) {
-      product.setStatus(updateRequest.getStatus());
+    if (updateRequest.getStatus() != ProductStatus.DISABLE) {
+      product.setStatus(setStatusByStockQuantity(product));
     } else {
-      if (product.getStockQuantity() == 0) {
-        product.setStatus(ProductStatus.NO_STOCK);
-      } else {
-        product.setStatus(ProductStatus.IN_STOCK);
-      }
+      product.setStatus(updateRequest.getStatus());
     }
 
     return ProductDto.Response.fromEntity(product);
+
+  }
+
+  /**
+   * 재고 상태에 따른 상품 상태 설정
+   *
+   * @param product
+   * @return ProductStatus
+   */
+  private ProductStatus setStatusByStockQuantity(Product product) {
+
+    if (product.getStockQuantity() == 0) {
+      return ProductStatus.NO_STOCK;
+    } else {
+      return ProductStatus.IN_STOCK;
+    }
 
   }
 

@@ -4,15 +4,17 @@ import com.ecommerce.dto.ResponseDto;
 import com.ecommerce.dto.product.ProductDto;
 import com.ecommerce.dto.product.UpdateProductDto;
 import com.ecommerce.service.product.ProductService;
+import com.ecommerce.type.ProductStatus;
+import com.ecommerce.type.SortType;
 import jakarta.validation.Valid;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,27 +41,27 @@ public class ProductController {
   }
 
   @GetMapping
-  public List<ProductDto.Response> getProductList(
+  public Page<ProductDto.Response> getProductList(
       @RequestParam(required = false, defaultValue = "1") Integer page,
       @RequestParam(required = false, defaultValue = "") String search,
-      @RequestParam(required = false, defaultValue = "") String status,
-      @RequestParam(required = false, defaultValue = "latest") String ordering
+      @RequestParam(required = false, defaultValue = "NONE") ProductStatus status,
+      @RequestParam(required = false, defaultValue = "LATEST") SortType sortType
   ) {
 
-    return productService.getProductList(page, search, status, ordering);
+    return productService.getProductList(page, search, status, sortType);
 
   }
 
   @GetMapping("/seller/{memberId}")
-  public List<ProductDto.Response> getProductListByMemberId(
+  public Page<ProductDto.Response> getProductListByMemberId(
       @PathVariable String memberId,
       @RequestParam(required = false, defaultValue = "1") Integer page,
       @RequestParam(required = false, defaultValue = "") String search,
-      @RequestParam(required = false, defaultValue = "") String status,
-      @RequestParam(required = false, defaultValue = "latest") String ordering
+      @RequestParam(required = false, defaultValue = "NONE") ProductStatus status,
+      @RequestParam(required = false, defaultValue = "LATEST") SortType sortType
   ) {
 
-    return productService.getProductListByMemberId(memberId, page, search, status, ordering);
+    return productService.getProductListByMemberId(memberId, page, search, status, sortType);
 
   }
 
@@ -71,7 +73,7 @@ public class ProductController {
   }
 
   @PreAuthorize("hasRole('ROLE_SELLER')")
-  @PatchMapping("/{productId}")
+  @PutMapping("/{productId}")
   public ProductDto.Response updateProduct(
       @PathVariable Long productId,
       @RequestHeader("Authorization") String token,

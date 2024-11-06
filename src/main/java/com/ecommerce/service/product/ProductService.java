@@ -2,20 +2,23 @@ package com.ecommerce.service.product;
 
 import com.ecommerce.dto.ResponseDto;
 import com.ecommerce.dto.product.ProductDto;
+import com.ecommerce.dto.product.ProductDto.Response;
 import com.ecommerce.dto.product.UpdateProductDto;
 import com.ecommerce.entity.Product;
-import java.util.List;
+import com.ecommerce.type.ProductStatus;
+import com.ecommerce.type.SortType;
+import org.springframework.data.domain.Page;
 
 public interface ProductService {
 
   ProductDto.Response createProduct(String memberId, String token, ProductDto.Request request);
 
-  List<ProductDto.Response> getProductList(
-      Integer page, String search, String status, String ordering
+  Page<Response> getProductList(
+      Integer page, String search, ProductStatus status, SortType ordering
   );
 
-  List<ProductDto.Response> getProductListByMemberId(
-      String memberId, Integer page, String search, String status, String ordering
+  Page<ProductDto.Response> getProductListByMemberId(
+      String memberId, Integer page, String search, ProductStatus status, SortType ordering
   );
 
   ProductDto.Response getProductDetails(Long productId);
