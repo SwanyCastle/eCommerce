@@ -6,6 +6,7 @@ import com.ecommerce.dto.member.UpdateMemberDto;
 import com.ecommerce.entity.Member;
 import com.ecommerce.exception.MemberException;
 import com.ecommerce.repository.MemberRepository;
+import com.ecommerce.service.auth.AuthService;
 import com.ecommerce.type.ResponseCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class MemberServiceImplement implements MemberService {
 
+  private final AuthService authService;
   private final MemberRepository memberRepository;
   private final PasswordEncoder passwordEncoder;
 
@@ -26,7 +28,10 @@ public class MemberServiceImplement implements MemberService {
    * @return MemberDto
    */
   @Override
-  public MemberDto getMemberDetails(String memberId) {
+  @Transactional(readOnly = true)
+  public MemberDto getMemberDetails(String memberId, String token) {
+
+    authService.equalToMemberIdFromToken(memberId, token);
 
     return MemberDto.fromEntity(getMemberByMemberId(memberId));
 
@@ -41,7 +46,9 @@ public class MemberServiceImplement implements MemberService {
    */
   @Override
   @Transactional
-  public MemberDto updateMember(String memberId, UpdateMemberDto request) {
+  public MemberDto updateMember(String memberId, UpdateMemberDto request, String token) {
+
+    authService.equalToMemberIdFromToken(memberId, token);
 
     Member member = getMemberByMemberId(memberId);
 
@@ -70,7 +77,9 @@ public class MemberServiceImplement implements MemberService {
    */
   @Override
   @Transactional
-  public ResponseDto deleteMember(String memberId) {
+  public ResponseDto deleteMember(String memberId, String token) {
+
+    authService.equalToMemberIdFromToken(memberId, token);
 
     memberRepository.delete(getMemberByMemberId(memberId));
 

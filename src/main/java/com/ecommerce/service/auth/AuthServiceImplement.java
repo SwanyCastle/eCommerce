@@ -168,10 +168,7 @@ public class AuthServiceImplement implements AuthService {
   @Override
   public ResponseDto signOut(String memberId, String token) {
 
-    boolean isEqual = jwtProvider.equalMemberId(memberId, token);
-    if (!isEqual) {
-      throw new MemberException(ResponseCode.MEMBER_UNMATCHED);
-    }
+    equalToMemberIdFromToken(memberId, token);
 
     redisService.deleteToken(memberId);
 
@@ -190,6 +187,21 @@ public class AuthServiceImplement implements AuthService {
     boolean isExists = memberRepository.existsByMemberId(userId);
     if (isExists) {
       throw new MemberException(ResponseCode.MEMBER_ALREADY_EXISTS);
+    }
+
+  }
+
+  /**
+   * 요청으로 들어온 토큰의 memberId 와 PathVariable 의 memberId 가 같은지 확인
+   * @param memberId
+   * @param token
+   */
+  @Override
+  public void equalToMemberIdFromToken(String memberId, String token) {
+
+    boolean isEqual = jwtProvider.equalMemberId(memberId, token);
+    if (!isEqual) {
+      throw new MemberException(ResponseCode.MEMBER_UNMATCHED);
     }
 
   }

@@ -547,7 +547,7 @@ public class AuthServiceImplementTest {
   }
 
   @Test
-  @DisplayName("로그아웃 - 실패 (사용자 불일치)")
+  @DisplayName("로그아웃 - 실패 (토큰에 있는 멤버 정보와 불일치)")
   void testSignOut_Fail_MemberUnMatched() {
     // given
     given(jwtProvider.equalMemberId(eq("testUser"), eq("accessToken")))

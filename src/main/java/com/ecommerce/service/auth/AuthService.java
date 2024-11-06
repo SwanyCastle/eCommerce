@@ -22,6 +22,8 @@ public interface AuthService {
 
   ResponseDto signOut(String memberId, String token);
 
-  void checkExistsUserId(String userId);
+  void checkExistsUserId(String memberId);
+
+  void equalToMemberIdFromToken(String memberId, String token);
 
 }

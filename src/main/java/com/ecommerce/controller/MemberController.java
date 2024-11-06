@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -30,9 +31,12 @@ public class MemberController {
    * @return ResponseEntity<MemberDto>
    */
   @GetMapping("/{memberId}")
-  public ResponseEntity<MemberDto> getMemberDetails(@PathVariable String memberId) {
+  public ResponseEntity<MemberDto> getMemberDetails(
+      @PathVariable String memberId,
+      @RequestHeader("Authorization") String token
+  ) {
     return ResponseEntity.status(HttpStatus.OK)
-        .body(memberService.getMemberDetails(memberId));
+        .body(memberService.getMemberDetails(memberId, token));
   }
 
   /**
@@ -45,10 +49,11 @@ public class MemberController {
   @PatchMapping("/{memberId}")
   public ResponseEntity<MemberDto> updateMember(
       @PathVariable String memberId,
-      @RequestBody @Valid UpdateMemberDto updateRequest
+      @RequestBody @Valid UpdateMemberDto updateRequest,
+      @RequestHeader("Authorization") String token
   ) {
     return ResponseEntity.status(HttpStatus.OK)
-        .body(memberService.updateMember(memberId, updateRequest));
+        .body(memberService.updateMember(memberId, updateRequest, token));
   }
 
   /**
@@ -59,10 +64,11 @@ public class MemberController {
    */
   @DeleteMapping("/{memberId}")
   public ResponseEntity<ResponseDto> deleteMember(
-      @PathVariable String memberId
+      @PathVariable String memberId,
+      @RequestHeader("Authorization") String token
   ) {
     return ResponseEntity.status(HttpStatus.OK)
-        .body(memberService.deleteMember(memberId));
+        .body(memberService.deleteMember(memberId, token));
   }
 
 }

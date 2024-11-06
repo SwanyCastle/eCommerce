@@ -7,11 +7,11 @@ import com.ecommerce.entity.Member;
 
 public interface MemberService {
 
-  MemberDto getMemberDetails(String memberId);
+  MemberDto getMemberDetails(String memberId, String token);
 
-  MemberDto updateMember(String memberId, UpdateMemberDto request);
+  MemberDto updateMember(String memberId, UpdateMemberDto request, String token);
 
-  ResponseDto deleteMember(String memberId);
+  ResponseDto deleteMember(String memberId, String token);
 
   Member getMemberByMemberId(String memberId);
 
