@@ -11,9 +11,11 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.ecommerce.dto.product.ProductDto;
+import com.ecommerce.dto.product.UpdateProductDto;
 import com.ecommerce.entity.Member;
 import com.ecommerce.entity.Product;
 import com.ecommerce.exception.MemberException;
+import com.ecommerce.exception.ProductException;
 import com.ecommerce.repository.ProductRepository;
 import com.ecommerce.service.auth.AuthService;
 import com.ecommerce.service.member.MemberService;
@@ -24,6 +26,7 @@ import com.ecommerce.type.Role;
 import com.ecommerce.type.SortType;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -651,6 +654,130 @@ class ProductServiceImplementTest {
         .getMemberByMemberId(eq("testUser"));
 
     assertThat(memberException.getErrorCode()).isEqualTo(ResponseCode.MEMBER_NOT_FOUND);
+  }
+
+  @Test
+  @DisplayName("상품 정보 수정 - 성공")
+  void testUpdateProduct_Success() {
+    // given
+    UpdateProductDto updateRequest = UpdateProductDto.builder()
+        .productName("updateProductName")
+        .description("updateProductDescription")
+        .stockQuantity(3)
+        .price(BigDecimal.valueOf(10001.0))
+        .status(ProductStatus.NO_STOCK)
+        .build();
+
+    Member member = Member.builder()
+        .memberId("testUser")
+        .memberName("test")
+        .email("test@email.com")
+        .password("encodedPassword")
+        .phoneNumber("01011112222")
+        .address("test시 test구 test로 111")
+        .role(Role.SELLER)
+        .loginType(LoginType.APP)
+        .build();
+
+    Product product = Product.builder()
+        .productName("testProductName1")
+        .description("testProductDescription1")
+        .stockQuantity(3)
+        .price(BigDecimal.valueOf(10001.0))
+        .status(ProductStatus.NO_STOCK)
+        .rating(BigDecimal.ZERO)
+        .member(member)
+        .build();
+
+    given(productRepository.findById(1L)).willReturn(Optional.ofNullable(product));
+
+    willDoNothing().given(authService)
+        .equalToMemberIdFromToken(eq(member.getMemberId()), eq("token"));
+
+    // when
+    ProductDto.Response updatedProduct =
+        productServiceImplement.updateProduct(1L, "token", updateRequest);
+
+    // then
+    verify(productRepository, times(1)).findById(eq(1L));
+
+    assertThat(updatedProduct.getProductName()).isEqualTo("updateProductName");
+    assertThat(updatedProduct.getDescription()).isEqualTo("updateProductDescription");
+  }
+
+  @Test
+  @DisplayName("상품 정보 수정 - 실패 (존재하지 않는 상품)")
+  void testUpdateProduct_Fail_ProductNotFound() {
+    // given
+    UpdateProductDto updateRequest = UpdateProductDto.builder()
+        .productName("updateProductName")
+        .description("updateProductDescription")
+        .stockQuantity(3)
+        .price(BigDecimal.valueOf(10001.0))
+        .status(ProductStatus.NO_STOCK)
+        .build();
+
+    given(productRepository.findById(1L)).willReturn(Optional.empty());
+
+
+    // when
+    ProductException productException = assertThrows(ProductException.class,
+        () -> productServiceImplement.updateProduct(1L, "token", updateRequest));
+
+    // then
+    verify(productRepository, times(1)).findById(eq(1L));
+
+    assertThat(productException.getErrorCode()).isEqualTo(ResponseCode.PRODUCT_NOT_FOUND);
+  }
+
+  @Test
+  @DisplayName("상품 정보 수정 - 실패 (토큰에 있는 멤버 정보와 불일치)")
+  void testUpdateProduct_Fail_MemberUnMatched() {
+    // given
+    UpdateProductDto updateRequest = UpdateProductDto.builder()
+        .productName("updateProductName")
+        .description("updateProductDescription")
+        .stockQuantity(3)
+        .price(BigDecimal.valueOf(10001.0))
+        .status(ProductStatus.NO_STOCK)
+        .build();
+
+    Member member = Member.builder()
+        .memberId("testUser")
+        .memberName("test")
+        .email("test@email.com")
+        .password("encodedPassword")
+        .phoneNumber("01011112222")
+        .address("test시 test구 test로 111")
+        .role(Role.SELLER)
+        .loginType(LoginType.APP)
+        .build();
+
+    Product product = Product.builder()
+        .productName("testProductName1")
+        .description("testProductDescription1")
+        .stockQuantity(3)
+        .price(BigDecimal.valueOf(10001.0))
+        .status(ProductStatus.NO_STOCK)
+        .rating(BigDecimal.ZERO)
+        .member(member)
+        .build();
+
+    given(productRepository.findById(1L)).willReturn(Optional.ofNullable(product));
+
+    doThrow(new MemberException(ResponseCode.MEMBER_UNMATCHED))
+        .when(authService).equalToMemberIdFromToken(eq(member.getMemberId()), eq("token"));
+
+    // when
+    MemberException memberException = assertThrows(MemberException.class,
+        () -> productServiceImplement.updateProduct(1L, "token", updateRequest));
+
+    // then
+    verify(productRepository, times(1)).findById(eq(1L));
+    verify(authService, times(1))
+        .equalToMemberIdFromToken(eq(member.getMemberId()), eq("token"));
+
+    assertThat(memberException.getErrorCode()).isEqualTo(ResponseCode.MEMBER_UNMATCHED);
   }
 
 }
