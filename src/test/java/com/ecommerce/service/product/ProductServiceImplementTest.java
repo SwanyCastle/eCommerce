@@ -657,6 +657,65 @@ class ProductServiceImplementTest {
   }
 
   @Test
+  @DisplayName("상품 정보 조회 - 성공")
+  void testGetProductDetails_Success() {
+    // given
+    Member member = Member.builder()
+        .memberId("testUser")
+        .memberName("test")
+        .email("test@email.com")
+        .password("encodedPassword")
+        .phoneNumber("01011112222")
+        .address("test시 test구 test로 111")
+        .role(Role.SELLER)
+        .loginType(LoginType.APP)
+        .build();
+
+    Product product = Product.builder()
+        .productName("testProductName")
+        .description("testProductDescription")
+        .stockQuantity(3)
+        .price(BigDecimal.valueOf(10001.0))
+        .status(ProductStatus.IN_STOCK)
+        .rating(BigDecimal.ZERO)
+        .member(member)
+        .build();
+
+    given(productRepository.findById(1L)).willReturn(Optional.ofNullable(product));
+
+    // when
+    ProductDto.Response productDetails = productServiceImplement.getProductDetails(1L);
+
+    // then
+    verify(productRepository, times(1))
+        .findById(eq(1L));
+
+    assertThat(productDetails.getProductName()).isEqualTo("testProductName");
+    assertThat(productDetails.getDescription()).isEqualTo("testProductDescription");
+    assertThat(productDetails.getStockQuantity()).isEqualTo(3);
+    assertThat(productDetails.getPrice()).isEqualTo(BigDecimal.valueOf(10001.0));
+    assertThat(productDetails.getStatus()).isEqualTo(ProductStatus.IN_STOCK);
+    assertThat(productDetails.getSeller()).isEqualTo(member.getMemberId());
+  }
+
+  @Test
+  @DisplayName("상품 정보 조회 - 실패")
+  void testGetProductDetails_Fail() {
+    // given
+    given(productRepository.findById(1L)).willReturn(Optional.empty());
+
+    // when
+    ProductException productException = assertThrows(ProductException.class,
+        () -> productServiceImplement.getProductDetails(1L));
+
+    // then
+    verify(productRepository, times(1))
+        .findById(eq(1L));
+
+    assertThat(productException.getErrorCode()).isEqualTo(ResponseCode.PRODUCT_NOT_FOUND);
+  }
+
+  @Test
   @DisplayName("상품 정보 수정 - 성공")
   void testUpdateProduct_Success() {
     // given
@@ -680,8 +739,8 @@ class ProductServiceImplementTest {
         .build();
 
     Product product = Product.builder()
-        .productName("testProductName1")
-        .description("testProductDescription1")
+        .productName("testProductName")
+        .description("testProductDescription")
         .stockQuantity(3)
         .price(BigDecimal.valueOf(10001.0))
         .status(ProductStatus.NO_STOCK)
@@ -718,7 +777,6 @@ class ProductServiceImplementTest {
         .build();
 
     given(productRepository.findById(1L)).willReturn(Optional.empty());
-
 
     // when
     ProductException productException = assertThrows(ProductException.class,
