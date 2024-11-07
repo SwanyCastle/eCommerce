@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @PreAuthorize("hasRole('ROLE_CUSTOMER')")
-@RequestMapping("/api/v1/carts/customer")
+@RequestMapping("/api/v1/carts/customer/{memberId}/cart-items")
 @RequiredArgsConstructor
 public class CartController {
 
@@ -35,7 +35,7 @@ public class CartController {
    * @param token
    * @return CartDto
    */
-  @GetMapping("/{memberId}")
+  @GetMapping
   public CartDto getCartDetails(
       @PathVariable String memberId,
       @RequestHeader("Authorization") String token
@@ -51,7 +51,7 @@ public class CartController {
    * @param request
    * @return CartItemDto.Response
    */
-  @PostMapping("/{memberId}/cart-item")
+  @PostMapping
   public CartItemDto.Response addCartItem(
       @PathVariable String memberId,
       @RequestHeader("Authorization") String token,
@@ -69,7 +69,7 @@ public class CartController {
    * @param updateRequest
    * @return CartItemDto.Response
    */
-  @PutMapping("/{memberId}/cart-item/{cartItemId}")
+  @PutMapping("/{cartItemId}")
   public CartItemDto.Response updateCartItem(
       @PathVariable String memberId,
       @PathVariable Long cartItemId,
@@ -87,7 +87,7 @@ public class CartController {
    * @param token
    * @return ResponseDto
    */
-  @DeleteMapping("/{memberId}/cart-item/{cartItemId}")
+  @DeleteMapping("/{cartItemId}")
   public ResponseDto deleteCartItem(
       @PathVariable String memberId,
       @PathVariable Long cartItemId,
@@ -103,7 +103,7 @@ public class CartController {
    * @param token
    * @return ResponseDto
    */
-  @DeleteMapping("/{memberId}/cart-item")
+  @DeleteMapping
   public ResponseDto deleteAllCartItem(
       @PathVariable String memberId,
       @RequestHeader("Authorization") String token
