@@ -35,6 +35,8 @@ public enum ResponseCode {
   PRODUCT_NOT_FOUND("상품이 존재하지 않습니다."),
   PRODUCT_DELETE_SUCCESS("상품을 정상적으로 삭제했습니다."),
 
+  CART_NOT_FOUND("장바구니가 존재하지 않습니다."),
+
   REVIEW_NOT_FOUND("리뷰가 존재하지 않습니다."),
   REVIEW_ALREADY_EXISTS("리뷰가 이미 존재 합니다."),
   REVIEW_NO_AUTHORIZATION("리뷰 작성할 권한이 없습니다."),
