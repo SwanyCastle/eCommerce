@@ -1,6 +1,7 @@
 package com.ecommerce.service.cart;
 
 import com.ecommerce.dto.cart.CartItemDto;
+import com.ecommerce.dto.cart.UpdateCartItemDto;
 import com.ecommerce.entity.Cart;
 import com.ecommerce.entity.CartItem;
 import com.ecommerce.entity.Member;
@@ -66,6 +67,48 @@ public class CartItemServiceImplement implements CartItemService {
                 .build()
         )
     );
+
+  }
+
+  /**
+   * 장바구니 상품 수량 수정
+   *
+   * @param memberId
+   * @param token
+   * @param updateRequest
+   * @return CartItemDto.Response
+   */
+  @Override
+  @Transactional
+  public CartItemDto.Response updateCartItem(
+      String memberId, Long cartItemId, String token, UpdateCartItemDto updateRequest
+  ) {
+
+    authService.equalToMemberIdFromToken(memberId, token);
+
+    CartItem cartItem = getCartItemById(cartItemId);
+
+    if (updateRequest.getQuantity() > cartItem.getProduct().getStockQuantity()) {
+      throw new CartException(ResponseCode.CART_ITEM_CANNOT_UPDATE_QUANTITY);
+    }
+
+    cartItem.setQuantity(updateRequest.getQuantity());
+
+    return CartItemDto.Response.fromEntity(cartItem);
+
+  }
+
+  /**
+   * CartItem ID 로 조회
+   *
+   * @param cartItemId
+   * @return CartItem
+   */
+  @Transactional(readOnly = true)
+  public CartItem getCartItemById(Long cartItemId) {
+
+    return cartItemRepository.findById(cartItemId)
+        .orElseThrow(() -> new CartException(ResponseCode.CART_ITEM_NOT_FOUND));
 
   }
 

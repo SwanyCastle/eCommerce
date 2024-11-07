@@ -2,6 +2,7 @@ package com.ecommerce.controller;
 
 import com.ecommerce.dto.cart.CartDto;
 import com.ecommerce.dto.cart.CartItemDto;
+import com.ecommerce.dto.cart.UpdateCartItemDto;
 import com.ecommerce.service.cart.CartItemService;
 import com.ecommerce.service.cart.CartService;
 import jakarta.validation.Valid;
@@ -10,6 +11,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -45,7 +47,7 @@ public class CartController {
    * @param memberId
    * @param token
    * @param request
-   * @return ResponseDto
+   * @return CartItemDto.Response
    */
   @PostMapping("/{memberId}/cart-item")
   public CartItemDto.Response addCartItem(
@@ -54,6 +56,24 @@ public class CartController {
       @RequestBody @Valid CartItemDto.Request request
   ) {
     return cartItemService.addCartItem(memberId, token, request);
+  }
+
+  /**
+   * 장바구니 상품 수량 수정
+   *
+   * @param memberId
+   * @param token
+   * @param updateRequest
+   * @return CartItemDto.Response
+   */
+  @PutMapping("/{memberId}/cart-item/{cartItemId}")
+  public CartItemDto.Response updateCartItem(
+      @PathVariable String memberId,
+      @PathVariable Long cartItemId,
+      @RequestHeader("Authorization") String token,
+      @RequestBody @Valid UpdateCartItemDto updateRequest
+  ) {
+    return cartItemService.updateCartItem(memberId, cartItemId, token, updateRequest);
   }
 
 }
