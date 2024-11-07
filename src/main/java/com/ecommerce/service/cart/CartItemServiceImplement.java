@@ -1,5 +1,6 @@
 package com.ecommerce.service.cart;
 
+import com.ecommerce.dto.ResponseDto;
 import com.ecommerce.dto.cart.CartItemDto;
 import com.ecommerce.dto.cart.UpdateCartItemDto;
 import com.ecommerce.entity.Cart;
@@ -95,6 +96,28 @@ public class CartItemServiceImplement implements CartItemService {
     cartItem.setQuantity(updateRequest.getQuantity());
 
     return CartItemDto.Response.fromEntity(cartItem);
+
+  }
+
+  /**
+   * 장바구니 상품 제거
+   *
+   * @param memberId
+   * @param cartItemId
+   * @param token
+   * @return ResponseDto
+   */
+  @Override
+  @Transactional
+  public ResponseDto deleteCartItem(String memberId, Long cartItemId, String token) {
+
+    authService.equalToMemberIdFromToken(memberId, token);
+
+    CartItem cartItem = getCartItemById(cartItemId);
+
+    cartItemRepository.delete(cartItem);
+
+    return ResponseDto.getResponseBody(ResponseCode.CART_ITEM_DELETE_SUCCESS);
 
   }
 

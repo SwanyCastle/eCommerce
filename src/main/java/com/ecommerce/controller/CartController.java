@@ -1,5 +1,6 @@
 package com.ecommerce.controller;
 
+import com.ecommerce.dto.ResponseDto;
 import com.ecommerce.dto.cart.CartDto;
 import com.ecommerce.dto.cart.CartItemDto;
 import com.ecommerce.dto.cart.UpdateCartItemDto;
@@ -8,6 +9,7 @@ import com.ecommerce.service.cart.CartService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -62,6 +64,7 @@ public class CartController {
    * 장바구니 상품 수량 수정
    *
    * @param memberId
+   * @param cartItemId
    * @param token
    * @param updateRequest
    * @return CartItemDto.Response
@@ -74,6 +77,23 @@ public class CartController {
       @RequestBody @Valid UpdateCartItemDto updateRequest
   ) {
     return cartItemService.updateCartItem(memberId, cartItemId, token, updateRequest);
+  }
+
+  /**
+   * 장바구니 상품 삭제
+   *
+   * @param memberId
+   * @param cartItemId
+   * @param token
+   * @return ResponseDto
+   */
+  @DeleteMapping("/{memberId}/cart-item/{cartItemId}")
+  public ResponseDto deleteCartItem(
+      @PathVariable String memberId,
+      @PathVariable Long cartItemId,
+      @RequestHeader("Authorization") String token
+  ) {
+    return cartItemService.deleteCartItem(memberId, cartItemId, token);
   }
 
 }

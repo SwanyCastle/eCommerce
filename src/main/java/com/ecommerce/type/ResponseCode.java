@@ -41,6 +41,7 @@ public enum ResponseCode {
   CART_ITEM_ALREADY_EXISTS("장바구니에 이미 존재하는 상품입니다."),
   CART_ITEM_NOT_FOUND("장바구니에 존재하지 않는 상품입니다."),
   CART_ITEM_CANNOT_UPDATE_QUANTITY("장바구니의 상품 수량을 업데이트할수 없습니다."),
+  CART_ITEM_DELETE_SUCCESS("장바구니의 상품 성공적으로 삭제 되었습니다."),
 
   REVIEW_NOT_FOUND("리뷰가 존재하지 않습니다."),
   REVIEW_ALREADY_EXISTS("리뷰가 이미 존재 합니다."),
