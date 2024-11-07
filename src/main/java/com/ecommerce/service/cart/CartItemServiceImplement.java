@@ -1,6 +1,5 @@
 package com.ecommerce.service.cart;
 
-import com.ecommerce.dto.ResponseDto;
 import com.ecommerce.dto.cart.CartItemDto;
 import com.ecommerce.entity.Cart;
 import com.ecommerce.entity.CartItem;
@@ -39,7 +38,8 @@ public class CartItemServiceImplement implements CartItemService {
    */
   @Override
   @Transactional
-  public ResponseDto addCartItem(String memberId, String token, CartItemDto.Request request) {
+  public CartItemDto.Response addCartItem(String memberId, String token,
+      CartItemDto.Request request) {
 
     authService.equalToMemberIdFromToken(memberId, token);
 
@@ -56,16 +56,16 @@ public class CartItemServiceImplement implements CartItemService {
       throw new CartException(ResponseCode.CART_ITEM_ALREADY_EXISTS);
     }
 
-    cartItemRepository.save(
-        CartItem.builder()
-            .cart(cart)
-            .product(product)
-            .quantity(request.getQuantity())
-            .price(product.getPrice())
-            .build()
+    return CartItemDto.Response.fromEntity(
+        cartItemRepository.save(
+            CartItem.builder()
+                .cart(cart)
+                .product(product)
+                .quantity(request.getQuantity())
+                .price(product.getPrice())
+                .build()
+        )
     );
-
-    return ResponseDto.getResponseBody(ResponseCode.ADDED_CART_ITEM);
 
   }
 

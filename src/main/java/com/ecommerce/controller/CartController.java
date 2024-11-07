@@ -49,7 +49,7 @@ public class CartController {
    * @return ResponseDto
    */
   @PostMapping("/{memberId}/cart-item")
-  public ResponseDto addCartItem(
+  public CartItemDto.Response addCartItem(
       @PathVariable String memberId,
       @RequestHeader("Authorization") String token,
       @RequestBody @Valid CartItemDto.Request request
