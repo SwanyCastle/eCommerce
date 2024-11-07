@@ -1,4 +1,4 @@
-<img width="1021" alt="EcommerceERD" src="https://github.com/user-attachments/assets/3ac9dd08-9e78-4598-876a-7bf9c1f77e99"># 🛒 Ecommerce Project
+# 🛒 Ecommerce Project
 이커머스 프로젝트 
 
 # 🛠️ 사용 기술
