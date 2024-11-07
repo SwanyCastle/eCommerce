@@ -96,4 +96,19 @@ public class CartController {
     return cartItemService.deleteCartItem(memberId, cartItemId, token);
   }
 
+  /**
+   * 장바구니 상품 전체 삭제
+   *
+   * @param memberId
+   * @param token
+   * @return ResponseDto
+   */
+  @DeleteMapping("/{memberId}/cart-item")
+  public ResponseDto deleteAllCartItem(
+      @PathVariable String memberId,
+      @RequestHeader("Authorization") String token
+  ) {
+    return cartItemService.deleteAllCartItem(memberId, token);
+  }
+
 }

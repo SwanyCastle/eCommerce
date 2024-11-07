@@ -12,4 +12,6 @@ public interface CartItemService {
 
   ResponseDto deleteCartItem(String memberId, Long cartItemId, String token);
 
+  ResponseDto deleteAllCartItem(String memberId, String token);
+
 }

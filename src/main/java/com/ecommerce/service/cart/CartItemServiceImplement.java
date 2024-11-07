@@ -122,6 +122,27 @@ public class CartItemServiceImplement implements CartItemService {
   }
 
   /**
+   * 장바구니 상품 전체 제거
+   *
+   * @param memberId
+   * @param token
+   * @return ResponseDto
+   */
+  @Override
+  @Transactional
+  public ResponseDto deleteAllCartItem(String memberId, String token) {
+
+    authService.equalToMemberIdFromToken(memberId, token);
+
+    Cart cart = getCartByMemberId(memberId);
+
+    cartItemRepository.deleteAllByCart(cart);
+
+    return ResponseDto.getResponseBody(ResponseCode.CART_ITEM_DELETE_SUCCESS);
+
+  }
+
+  /**
    * CartItem ID 로 조회
    *
    * @param cartItemId
