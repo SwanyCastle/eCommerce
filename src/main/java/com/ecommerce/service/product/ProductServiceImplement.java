@@ -54,7 +54,7 @@ public class ProductServiceImplement implements ProductService {
                 .description(request.getDescription())
                 .stockQuantity(request.getStockQuantity())
                 .price(BigDecimal.valueOf(request.getPrice().doubleValue()))
-                .status(ProductStatus.IN_STOCK)
+                .status(request.getStatus())
                 .rating(BigDecimal.valueOf(0))
                 .member(member)
                 .build()
