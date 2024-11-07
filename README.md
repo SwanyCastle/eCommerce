@@ -1,4 +1,4 @@
-# 🛒 Ecommerce Project
+<img width="1021" alt="EcommerceERD" src="https://github.com/user-attachments/assets/3ac9dd08-9e78-4598-876a-7bf9c1f77e99"># 🛒 Ecommerce Project
 이커머스 프로젝트 
 
 # 🛠️ 사용 기술
@@ -106,5 +106,6 @@
   - 리뷰 정보 삭제 : 리뷰 작성자 및 해당 상품 게시한 판매자만 리뷰 삭제 가능하도록 기능 구현한다. <br>
 
 # ERD
-<img width="1254" alt="스크린샷 2024-10-20 오후 3 15 50" src="https://github.com/member-attachments/assets/778fe17e-7d5f-4ebd-8d8e-bd278dc10cee">
+<img width="1021" alt="EcommerceERD" src="https://github.com/user-attachments/assets/a0f6d344-1a2b-41aa-977f-1e9e46dc75fb">
+
 
