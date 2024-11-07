@@ -1,6 +1,5 @@
 package com.ecommerce.controller;
 
-import com.ecommerce.dto.ResponseDto;
 import com.ecommerce.dto.cart.CartDto;
 import com.ecommerce.dto.cart.CartItemDto;
 import com.ecommerce.service.cart.CartItemService;
