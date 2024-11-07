@@ -1,6 +1,7 @@
 package com.ecommerce.exception.handler;
 
 import com.ecommerce.dto.ResponseDto;
+import com.ecommerce.exception.CartException;
 import com.ecommerce.exception.CertificationException;
 import com.ecommerce.exception.DataBaseException;
 import com.ecommerce.exception.EmailException;
@@ -59,6 +60,13 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(ProductException.class)
   public ResponseEntity<ResponseDto> productExceptionHandler(ProductException e) {
     log.error("{} 에러가 발생했습니다. (product)", e.getErrorCode());
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        .body(ResponseDto.getResponseBody(e.getErrorCode()));
+  }
+
+  @ExceptionHandler(CartException.class)
+  public ResponseEntity<ResponseDto> cartExceptionHandler(CartException e) {
+    log.error("{} 에러가 발생했습니다. (cart)", e.getErrorCode());
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
         .body(ResponseDto.getResponseBody(e.getErrorCode()));
   }
