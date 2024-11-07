@@ -36,6 +36,9 @@ public enum ResponseCode {
   PRODUCT_DELETE_SUCCESS("상품을 정상적으로 삭제했습니다."),
 
   CART_NOT_FOUND("장바구니가 존재하지 않습니다."),
+  CANNOT_ADDED_PRODUCT("장바구니에 추가할수 없는 상품입니다."),
+  ADDED_CART_ITEM("상품이 장바구니에 추가 되었습니다."),
+  CART_ITEM_ALREADY_EXISTS("장바구니에 이미 존재하는 상품입니다."),
 
   REVIEW_NOT_FOUND("리뷰가 존재하지 않습니다."),
   REVIEW_ALREADY_EXISTS("리뷰가 이미 존재 합니다."),
