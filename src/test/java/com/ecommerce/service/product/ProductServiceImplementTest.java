@@ -864,7 +864,7 @@ class ProductServiceImplementTest {
         .member(member)
         .build();
 
-    given(productRepository.findById(1L)).willReturn(Optional.ofNullable(product));
+    given(productRepository.findById(1L)).willReturn(Optional.of(product));
 
     willDoNothing().given(authService)
         .equalToMemberIdFromToken(eq(member.getMemberId()), eq("token"));
@@ -876,6 +876,8 @@ class ProductServiceImplementTest {
     verify(productRepository, times(1)).findById(eq(1L));
     verify(authService, times(1))
         .equalToMemberIdFromToken(eq(member.getMemberId()), eq("token"));
+    verify(productRepository, times(1))
+        .delete(eq(product));
 
     assertThat(responseDto.getCode()).isEqualTo(ResponseCode.PRODUCT_DELETE_SUCCESS);
   }

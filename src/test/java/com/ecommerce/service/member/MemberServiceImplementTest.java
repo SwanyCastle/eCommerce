@@ -228,7 +228,7 @@ class MemberServiceImplementTest {
         .build();
 
     given(memberRepository.findByMemberId(eq("testUser")))
-        .willReturn(Optional.ofNullable(member));
+        .willReturn(Optional.of(member));
 
     // when
     ResponseDto responseDto = memberServiceImplement.deleteMember("testUser", "token");
@@ -238,6 +238,8 @@ class MemberServiceImplementTest {
         .equalToMemberIdFromToken(eq("testUser"), eq("token"));
     verify(memberRepository, times(1))
         .findByMemberId(eq("testUser"));
+    verify(memberRepository, times(1))
+        .delete(eq(member));
 
     assertThat(responseDto.getCode()).isEqualTo(ResponseCode.MEMBER_DELETE_SUCCESS);
   }
