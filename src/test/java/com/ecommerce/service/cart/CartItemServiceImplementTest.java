@@ -380,7 +380,7 @@ class CartItemServiceImplementTest {
     verify(productService, times(1))
         .getProductById(eq(1L));
 
-    assertThat(cartException.getErrorCode()).isEqualTo(ResponseCode.CANNOT_ADDED_PRODUCT);
+    assertThat(cartException.getErrorCode()).isEqualTo(ResponseCode.CART_ITEM_CANNOT_ADDED_PRODUCT);
   }
 
   @Test

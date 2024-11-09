@@ -46,7 +46,7 @@ public class CartItemServiceImplement implements CartItemService {
     Product product = productService.getProductById(request.getProductId());
 
     if (product.getStatus() != ProductStatus.IN_STOCK) {
-      throw new CartException(ResponseCode.CANNOT_ADDED_PRODUCT);
+      throw new CartException(ResponseCode.CART_ITEM_CANNOT_ADDED_PRODUCT);
     }
 
     checkExceedStockQuantity(request.getQuantity(), product.getStockQuantity());

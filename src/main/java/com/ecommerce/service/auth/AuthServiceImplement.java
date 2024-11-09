@@ -54,7 +54,7 @@ public class AuthServiceImplement implements AuthService {
 
     checkExistsUserId(request.getMemberId());
 
-    return ResponseDto.getResponseBody(ResponseCode.AVAILABLE_USER_ID);
+    return ResponseDto.getResponseBody(ResponseCode.MEMBER_ID_AVAILABLE);
 
   }
 
@@ -122,7 +122,7 @@ public class AuthServiceImplement implements AuthService {
 
     boolean isCheckVerified = redisService.checkVerified(userId + ":verified");
     if (!isCheckVerified) {
-      throw new CertificationException(ResponseCode.DOSE_NOT_EXISTS_CERTIFICATION);
+      throw new CertificationException(ResponseCode.MAIL_CERTIFICATION_DOSE_NOT_EXISTS);
     }
 
     try {
@@ -158,7 +158,7 @@ public class AuthServiceImplement implements AuthService {
 
     boolean isMatched = passwordEncoder.matches(request.getPassword(), member.getPassword());
     if (!isMatched) {
-      throw new MemberException(ResponseCode.PASSWORD_UNMATCHED);
+      throw new MemberException(ResponseCode.MEMBER_PASSWORD_UNMATCHED);
     }
 
     String token = jwtProvider.createToken(member.getMemberId(), member.getRole());
