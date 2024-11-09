@@ -44,7 +44,7 @@ public class ReviewController {
    * @return ReviewDto.Response
    */
   @GetMapping("/{reviewId}/author/{memberId}")
-  public ReviewDto.Response createReview(
+  public ReviewDto.Response getReviewDetail(
       @PathVariable Long reviewId,
       @PathVariable String memberId,
       @RequestHeader("Authorization") String token

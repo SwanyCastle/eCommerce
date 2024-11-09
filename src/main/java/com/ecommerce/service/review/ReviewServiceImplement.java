@@ -42,9 +42,6 @@ public class ReviewServiceImplement implements ReviewService {
     Member member = memberService.getMemberByMemberId(memberId);
 
     Product product = productService.getProductById(request.getProductId());
-    if (product.getStatus() != ProductStatus.IN_STOCK) {
-      throw new ProductException(ResponseCode.PRODUCT_DISABLE);
-    }
 
     Review savedReview = reviewRepository.save(
         Review.builder()
