@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@PreAuthorize("hasRole('ROLE_CUSTOMER')")
 @RequestMapping("/api/v1/reviews")
 @RequiredArgsConstructor
 public class ReviewController {
@@ -33,6 +32,7 @@ public class ReviewController {
    * @param request
    * @return ReviewDto.Response
    */
+  @PreAuthorize("hasRole('ROLE_CUSTOMER')")
   @PostMapping("/author/{memberId}")
   public ReviewDto.Response createReview(
       @PathVariable String memberId,
@@ -67,6 +67,7 @@ public class ReviewController {
    * @param updateRequest
    * @return ReviewDto.Response
    */
+  @PreAuthorize("hasRole('ROLE_CUSTOMER')")
   @PutMapping("/{reviewId}/author/{memberId}")
   public ReviewDto.Response updateReview(
       @PathVariable Long reviewId,
@@ -85,6 +86,7 @@ public class ReviewController {
    * @param token
    * @return ResponseDto
    */
+  @PreAuthorize("hasRole('ROLE_CUSTOMER')")
   @DeleteMapping("/{reviewId}/author/{memberId}")
   public ResponseDto deleteReview(
       @PathVariable Long reviewId,
