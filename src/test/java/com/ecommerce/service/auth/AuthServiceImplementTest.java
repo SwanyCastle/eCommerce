@@ -80,7 +80,7 @@ public class AuthServiceImplementTest {
     verify(memberRepository, times(1))
         .existsByMemberId(eq("testUser"));
 
-    assertEquals(ResponseCode.AVAILABLE_USER_ID, response.getCode());
+    assertEquals(ResponseCode.MEMBER_ID_AVAILABLE, response.getCode());
   }
 
   @Test
@@ -334,7 +334,7 @@ public class AuthServiceImplementTest {
         .checkVerified(eq("testUser:verified"));
 
     assertThat(certificationException.getErrorCode())
-        .isEqualTo(ResponseCode.DOSE_NOT_EXISTS_CERTIFICATION);
+        .isEqualTo(ResponseCode.MAIL_CERTIFICATION_DOSE_NOT_EXISTS);
   }
 
   @Test
@@ -475,7 +475,7 @@ public class AuthServiceImplementTest {
     verify(passwordEncoder, times(1))
         .matches(eq("testPassword"), eq("encodedPassword"));
 
-    assertThat(memberException.getErrorCode()).isEqualTo(ResponseCode.PASSWORD_UNMATCHED);
+    assertThat(memberException.getErrorCode()).isEqualTo(ResponseCode.MEMBER_PASSWORD_UNMATCHED);
   }
 
   @Test

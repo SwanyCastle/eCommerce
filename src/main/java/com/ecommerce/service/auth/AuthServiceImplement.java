@@ -6,7 +6,9 @@ import com.ecommerce.dto.auth.EmailCertificationDto;
 import com.ecommerce.dto.auth.IdDuplicateCheckDto;
 import com.ecommerce.dto.auth.SignInDto;
 import com.ecommerce.dto.auth.SignUpDto;
+import com.ecommerce.dto.auth.SignUpDto.Request;
 import com.ecommerce.dto.member.MemberDto;
+import com.ecommerce.entity.Cart;
 import com.ecommerce.entity.Member;
 import com.ecommerce.exception.CertificationException;
 import com.ecommerce.exception.DataBaseException;
@@ -14,9 +16,11 @@ import com.ecommerce.exception.EmailException;
 import com.ecommerce.exception.MemberException;
 import com.ecommerce.provider.EmailProvider;
 import com.ecommerce.provider.JwtProvider;
+import com.ecommerce.repository.CartRepository;
 import com.ecommerce.repository.MemberRepository;
 import com.ecommerce.service.redis.RedisService;
 import com.ecommerce.type.ResponseCode;
+import com.ecommerce.type.Role;
 import com.ecommerce.utils.CertificationNumber;
 import jakarta.transaction.Transactional;
 import java.util.concurrent.TimeUnit;
@@ -31,11 +35,13 @@ import org.springframework.stereotype.Service;
 public class AuthServiceImplement implements AuthService {
 
   private final MemberRepository memberRepository;
-  private final EmailProvider emailProvider;
-  private final RedisService redisService;
-  private final JwtProvider jwtProvider;
+  private final CartRepository cartRepository;
 
+  private final EmailProvider emailProvider;
+  private final JwtProvider jwtProvider;
   private final PasswordEncoder passwordEncoder;
+
+  private final RedisService redisService;
 
   /**
    * 사용자 ID 중복 체크
@@ -48,7 +54,7 @@ public class AuthServiceImplement implements AuthService {
 
     checkExistsUserId(request.getMemberId());
 
-    return ResponseDto.getResponseBody(ResponseCode.AVAILABLE_USER_ID);
+    return ResponseDto.getResponseBody(ResponseCode.MEMBER_ID_AVAILABLE);
 
   }
 
@@ -116,15 +122,21 @@ public class AuthServiceImplement implements AuthService {
 
     boolean isCheckVerified = redisService.checkVerified(userId + ":verified");
     if (!isCheckVerified) {
-      throw new CertificationException(ResponseCode.DOSE_NOT_EXISTS_CERTIFICATION);
+      throw new CertificationException(ResponseCode.MAIL_CERTIFICATION_DOSE_NOT_EXISTS);
     }
 
     try {
       String encodedPassword = passwordEncoder.encode(request.getPassword());
 
-      return MemberDto.fromEntity(
-          memberRepository.save(SignUpDto.Request.toEntity(request, encodedPassword))
-      );
+      Member savedMember = memberRepository.save(Request.toEntity(request, encodedPassword));
+
+      if (savedMember.getRole() == Role.CUSTOMER) {
+        cartRepository.save(
+            Cart.builder().member(savedMember).build()
+        );
+      }
+
+      return MemberDto.fromEntity(savedMember);
     } catch (Exception e) {
       e.printStackTrace();
       throw new DataBaseException(ResponseCode.DATABASE_ERROR);
@@ -146,7 +158,7 @@ public class AuthServiceImplement implements AuthService {
 
     boolean isMatched = passwordEncoder.matches(request.getPassword(), member.getPassword());
     if (!isMatched) {
-      throw new MemberException(ResponseCode.PASSWORD_UNMATCHED);
+      throw new MemberException(ResponseCode.MEMBER_PASSWORD_UNMATCHED);
     }
 
     String token = jwtProvider.createToken(member.getMemberId(), member.getRole());
