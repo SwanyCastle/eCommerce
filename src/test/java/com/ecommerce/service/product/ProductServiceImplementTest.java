@@ -45,7 +45,7 @@ import org.springframework.data.domain.Sort.Direction;
 @ExtendWith(MockitoExtension.class)
 class ProductServiceImplementTest {
 
-  private static final int TEST_PAGE_SIZE = 5;
+  private static final int TEST_PRODUCT_PAGE_SIZE = 5;
 
   @Mock
   private AuthService authService;
@@ -186,7 +186,7 @@ class ProductServiceImplementTest {
   void testGetProductList_Success_ProductStatusIsNull() {
     // given
     Sort sort = Sort.by(Direction.DESC, "createdAt");
-    Pageable pageable = PageRequest.of(0, TEST_PAGE_SIZE, sort);
+    Pageable pageable = PageRequest.of(0, TEST_PRODUCT_PAGE_SIZE, sort);
 
     Member member = Member.builder()
         .memberId("testUser")
@@ -275,7 +275,7 @@ class ProductServiceImplementTest {
   void testGetProductList_Success_ProductStatus() {
     // given
     Sort sort = Sort.by(Direction.DESC, "createdAt");
-    Pageable pageable = PageRequest.of(0, TEST_PAGE_SIZE, sort);
+    Pageable pageable = PageRequest.of(0, TEST_PRODUCT_PAGE_SIZE, sort);
 
     Member member = Member.builder()
         .memberId("testUser")
@@ -365,7 +365,7 @@ class ProductServiceImplementTest {
   void testGetProductList_NoResult() {
     // given
     Sort sort = Sort.by(Direction.DESC, "createdAt");
-    Pageable pageable = PageRequest.of(0, TEST_PAGE_SIZE, sort);
+    Pageable pageable = PageRequest.of(0, TEST_PRODUCT_PAGE_SIZE, sort);
 
     List<Product> mockProducts = List.of();
 
@@ -397,7 +397,7 @@ class ProductServiceImplementTest {
   void testGetProductListByMemberId_Success_ProductStatusIsNull() {
     // given
     Sort sort = Sort.by(Direction.DESC, "createdAt");
-    Pageable pageable = PageRequest.of(0, TEST_PAGE_SIZE, sort);
+    Pageable pageable = PageRequest.of(0, TEST_PRODUCT_PAGE_SIZE, sort);
 
     Member member = Member.builder()
         .memberId("testUser")
@@ -494,7 +494,7 @@ class ProductServiceImplementTest {
   void testGetProductListByMemberId_Success_ProductStatus() {
     // given
     Sort sort = Sort.by(Direction.DESC, "createdAt");
-    Pageable pageable = PageRequest.of(0, TEST_PAGE_SIZE, sort);
+    Pageable pageable = PageRequest.of(0, TEST_PRODUCT_PAGE_SIZE, sort);
 
     Member member = Member.builder()
         .memberId("testUser")
@@ -592,7 +592,7 @@ class ProductServiceImplementTest {
   void testGetProductListByMemberId_NoResult() {
     // given
     Sort sort = Sort.by(Direction.DESC, "createdAt");
-    Pageable pageable = PageRequest.of(0, TEST_PAGE_SIZE, sort);
+    Pageable pageable = PageRequest.of(0, TEST_PRODUCT_PAGE_SIZE, sort);
 
     Member member = Member.builder()
         .memberId("testUser")

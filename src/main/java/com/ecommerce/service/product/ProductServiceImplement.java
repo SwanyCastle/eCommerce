@@ -26,7 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ProductServiceImplement implements ProductService {
 
-  private static final int PAGE_SIZE = 5;
+  private static final int PRODUCT_PAGE_SIZE = 5;
 
   private final AuthService authService;
   private final MemberService memberService;
@@ -79,7 +79,7 @@ public class ProductServiceImplement implements ProductService {
 
     Sort sort = setSortType(sortType);
 
-    Pageable pageable = PageRequest.of(page - 1, PAGE_SIZE, sort);
+    Pageable pageable = PageRequest.of(page - 1, PRODUCT_PAGE_SIZE, sort);
 
     if (status != ProductStatus.NONE) {
       return productRepository.findByProductNameContainingAndStatus(search, status, pageable)
@@ -108,7 +108,7 @@ public class ProductServiceImplement implements ProductService {
 
     Sort sort = setSortType(sortType);
 
-    Pageable pageable = PageRequest.of(page - 1, PAGE_SIZE, sort);
+    Pageable pageable = PageRequest.of(page - 1, PRODUCT_PAGE_SIZE, sort);
 
     Member member = memberService.getMemberByMemberId(memberId);
 
@@ -124,7 +124,7 @@ public class ProductServiceImplement implements ProductService {
   }
 
   /**
-   * 정렬 타입 세팅
+   * 상품 정렬 기준 설정
    *
    * @param sortType
    * @return Sort
