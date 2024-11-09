@@ -33,6 +33,7 @@ public enum ResponseCode {
 
   PRODUCT_NOT_FOUND("상품이 존재하지 않습니다."),
   PRODUCT_DELETE_SUCCESS("상품을 정상적으로 삭제했습니다."),
+  PRODUCT_DISABLE("비활성화된 상품 입니다."),
 
   CART_NOT_FOUND("장바구니가 존재하지 않습니다."),
   CART_ITEM_CANNOT_ADDED_PRODUCT("장바구니에 추가할수 없는 상품입니다."),
