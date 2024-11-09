@@ -23,9 +23,6 @@ public class ReviewDto {
   public static class Request {
 
     @NotNull
-    private String memberId;
-
-    @NotNull
     private Long productId;
 
     @NotBlank

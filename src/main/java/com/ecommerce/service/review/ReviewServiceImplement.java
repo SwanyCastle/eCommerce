@@ -5,6 +5,7 @@ import com.ecommerce.entity.Member;
 import com.ecommerce.entity.Product;
 import com.ecommerce.entity.Review;
 import com.ecommerce.exception.ProductException;
+import com.ecommerce.exception.ReviewException;
 import com.ecommerce.repository.review.ReviewRepository;
 import com.ecommerce.service.auth.AuthService;
 import com.ecommerce.service.member.MemberService;
@@ -34,11 +35,11 @@ public class ReviewServiceImplement implements ReviewService {
    */
   @Override
   @Transactional
-  public ReviewDto.Response createReview(String token, ReviewDto.Request request) {
+  public ReviewDto.Response createReview(String memberId, String token, ReviewDto.Request request) {
 
-    authService.equalToMemberIdFromToken(request.getMemberId(), token);
+    authService.equalToMemberIdFromToken(memberId, token);
 
-    Member member = memberService.getMemberByMemberId(request.getMemberId());
+    Member member = memberService.getMemberByMemberId(memberId);
 
     Product product = productService.getProductById(request.getProductId());
     if (product.getStatus() != ProductStatus.IN_STOCK) {
@@ -60,6 +61,24 @@ public class ReviewServiceImplement implements ReviewService {
     product.setRating(ratingAvg);
 
     return ReviewDto.Response.fromEntity(savedReview);
+
+  }
+
+  /**
+   * 리뷰 정보 조회
+   * @param reviewId
+   * @param token
+   * @return ReviewDto.Response
+   */
+  @Override
+  public ReviewDto.Response getReviewDetail(Long reviewId, String memberId, String token) {
+
+    authService.equalToMemberIdFromToken(memberId, token);
+
+    return ReviewDto.Response.fromEntity(
+        reviewRepository.findById(reviewId)
+            .orElseThrow(() -> new ReviewException(ResponseCode.REVIEW_NOT_FOUND))
+    );
 
   }
 
