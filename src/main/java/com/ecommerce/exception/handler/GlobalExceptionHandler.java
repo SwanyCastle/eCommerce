@@ -8,6 +8,7 @@ import com.ecommerce.exception.EmailException;
 import com.ecommerce.exception.MemberException;
 import com.ecommerce.exception.NotFoundException;
 import com.ecommerce.exception.ProductException;
+import com.ecommerce.exception.ReviewException;
 import com.ecommerce.type.ResponseCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -67,6 +68,13 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(CartException.class)
   public ResponseEntity<ResponseDto> cartExceptionHandler(CartException e) {
     log.error("{} 에러가 발생했습니다. (cart)", e.getErrorCode());
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        .body(ResponseDto.getResponseBody(e.getErrorCode()));
+  }
+
+  @ExceptionHandler(ReviewException.class)
+  public ResponseEntity<ResponseDto> reviewExceptionHandler(ReviewException e) {
+    log.error("{} 에러가 발생했습니다. (review)", e.getErrorCode());
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
         .body(ResponseDto.getResponseBody(e.getErrorCode()));
   }
