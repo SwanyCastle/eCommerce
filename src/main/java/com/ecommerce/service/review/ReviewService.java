@@ -4,6 +4,8 @@ import com.ecommerce.dto.ResponseDto;
 import com.ecommerce.dto.review.ReviewDto;
 import com.ecommerce.dto.review.UpdateReviewDto;
 import com.ecommerce.entity.Review;
+import com.ecommerce.type.SortType;
+import org.springframework.data.domain.Page;
 
 public interface ReviewService {
 
@@ -17,5 +19,7 @@ public interface ReviewService {
   ResponseDto deleteReview(Long reviewId, String memberId, String token);
 
   Review getReview(Long reviewId);
+
+  Page<ReviewDto.Response> getReviewsByProduct(Long productId, Integer page, SortType sortType);
 
 }

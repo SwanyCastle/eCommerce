@@ -4,8 +4,10 @@ import com.ecommerce.dto.ResponseDto;
 import com.ecommerce.dto.review.ReviewDto;
 import com.ecommerce.dto.review.UpdateReviewDto;
 import com.ecommerce.service.review.ReviewService;
+import com.ecommerce.type.SortType;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -94,6 +97,23 @@ public class ReviewController {
       @RequestHeader("Authorization") String token
   ) {
     return reviewService.deleteReview(reviewId, memberId, token);
+  }
+
+  /**
+   * 특정 상품에 대한 리뷰 목록 조회
+   *
+   * @param productId
+   * @param page
+   * @param sortType
+   * @return Page<ReviewDto.Response>
+   */
+  @GetMapping("/products/{productId}")
+  public Page<ReviewDto.Response> getReviewsByProduct(
+      @PathVariable Long productId,
+      @RequestParam(required = false, defaultValue = "1") Integer page,
+      @RequestParam(required = false, defaultValue = "LATEST") SortType sortType
+  ) {
+    return reviewService.getReviewsByProduct(productId, page, sortType);
   }
 
 }

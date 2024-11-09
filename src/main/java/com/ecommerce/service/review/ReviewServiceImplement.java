@@ -12,14 +12,22 @@ import com.ecommerce.service.auth.AuthService;
 import com.ecommerce.service.member.MemberService;
 import com.ecommerce.service.product.ProductService;
 import com.ecommerce.type.ResponseCode;
+import com.ecommerce.type.SortType;
 import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class ReviewServiceImplement implements ReviewService {
+
+  private static final int REVIEW_PAGE_SIZE = 3;
 
   private final ReviewRepository reviewRepository;
 
@@ -158,6 +166,49 @@ public class ReviewServiceImplement implements ReviewService {
 
     return reviewRepository.findById(reviewId)
         .orElseThrow(() -> new ReviewException(ResponseCode.REVIEW_NOT_FOUND));
+
+  }
+
+  /**
+   * 특정 상품에 대한 리뷰 목록 조회
+   *
+   * @param productId
+   * @return Page<Review>
+   */
+  @Override
+  public Page<ReviewDto.Response> getReviewsByProduct(
+      Long productId, Integer page, SortType sortType
+  ) {
+
+    Sort sort = setSortType(sortType);
+
+    Pageable pageable = PageRequest.of(page - 1, REVIEW_PAGE_SIZE, sort);
+
+    Product product = productService.getProductById(productId);
+
+    return reviewRepository.findByProduct(product, pageable).map(ReviewDto.Response::fromEntity);
+
+  }
+
+  /**
+   * 리뷰 정렬 기준 설정
+   *
+   * @param sortType
+   * @return Sort
+   */
+  private Sort setSortType(SortType sortType) {
+
+    switch (sortType) {
+      case LOW_RATING -> {
+        return Sort.by(Direction.ASC, "rating");
+      }
+      case HIGH_RATING -> {
+        return Sort.by(Direction.DESC, "rating");
+      }
+      default -> {
+        return Sort.by(Direction.DESC, "createdAt");
+      }
+    }
 
   }
 
