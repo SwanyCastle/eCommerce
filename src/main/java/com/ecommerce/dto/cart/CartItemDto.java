@@ -5,6 +5,7 @@ import com.ecommerce.type.ProductStatus;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -43,6 +44,8 @@ public class CartItemDto {
     private Integer quantity;
     private BigDecimal price;
     private ProductStatus status;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     public static Response fromEntity(CartItem cartItem) {
       return Response.builder()
@@ -56,6 +59,8 @@ public class CartItemDto {
                   .multiply(cartItem.getProduct().getPrice())
           )
           .status(cartItem.getProduct().getStatus())
+          .createdAt(cartItem.getCreatedAt())
+          .updatedAt(cartItem.getUpdateAt())
           .build();
     }
 

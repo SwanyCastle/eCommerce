@@ -2,6 +2,7 @@ package com.ecommerce.dto.cart;
 
 import com.ecommerce.entity.Cart;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,6 +20,8 @@ public class CartDto {
   private String memberId;
   private BigDecimal totalPrice;
   private List<CartItemDto.Response> cartItems;
+  private LocalDateTime createdAt;
+  private LocalDateTime updatedAt;
 
   public static CartDto fromEntity(Cart cart) {
 
@@ -34,6 +37,8 @@ public class CartDto {
         .memberId(cart.getMember().getMemberId())
         .totalPrice(totalPrice)
         .cartItems(cartItems)
+        .createdAt(cart.getCreatedAt())
+        .updatedAt(cart.getUpdateAt())
         .build();
 
   }
