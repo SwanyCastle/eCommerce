@@ -28,6 +28,7 @@ public class ReviewServiceImplement implements ReviewService {
 
   /**
    * 리뷰 등록
+   *
    * @param token
    * @param request
    * @return ReviewDto.Response
@@ -62,19 +63,18 @@ public class ReviewServiceImplement implements ReviewService {
 
   /**
    * 리뷰 정보 조회
+   *
    * @param reviewId
    * @param token
    * @return ReviewDto.Response
    */
   @Override
+  @Transactional(readOnly = true)
   public ReviewDto.Response getReviewDetail(Long reviewId, String memberId, String token) {
 
     authService.equalToMemberIdFromToken(memberId, token);
 
-    return ReviewDto.Response.fromEntity(
-        reviewRepository.findById(reviewId)
-            .orElseThrow(() -> new ReviewException(ResponseCode.REVIEW_NOT_FOUND))
-    );
+    return ReviewDto.Response.fromEntity(getReview(reviewId));
 
   }
 
@@ -93,8 +93,7 @@ public class ReviewServiceImplement implements ReviewService {
 
     authService.equalToMemberIdFromToken(memberId, token);
 
-    Review review = reviewRepository.findById(reviewId)
-        .orElseThrow(() -> new ReviewException(ResponseCode.REVIEW_NOT_FOUND));
+    Review review = getReview(reviewId);
 
     if (!review.getMember().getMemberId().equals(memberId)) {
       throw new ReviewException(ResponseCode.REVIEW_UNMATCHED_MEMBER);
@@ -109,6 +108,21 @@ public class ReviewServiceImplement implements ReviewService {
     review.getProduct().setRating(ratingAvg);
 
     return ReviewDto.Response.fromEntity(review);
+  }
+
+  /**
+   * reviewId 로 리뷰 정보 조회
+   *
+   * @param reviewId
+   * @return Review
+   */
+  @Override
+  @Transactional(readOnly = true)
+  public Review getReview(Long reviewId) {
+
+    return reviewRepository.findById(reviewId)
+        .orElseThrow(() -> new ReviewException(ResponseCode.REVIEW_NOT_FOUND));
+
   }
 
 }
