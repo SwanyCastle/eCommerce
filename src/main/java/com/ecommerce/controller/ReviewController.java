@@ -54,6 +54,14 @@ public class ReviewController {
     return reviewService.getReviewDetail(reviewId, memberId, token);
   }
 
+  /**
+   * 리뷰 정보 수정
+   * @param reviewId
+   * @param memberId
+   * @param token
+   * @param updateRequest
+   * @return ReviewDto.Response
+   */
   @PutMapping("/{reviewId}/author/{memberId}")
   public ReviewDto.Response updateReview(
       @PathVariable Long reviewId,
