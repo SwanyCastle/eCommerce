@@ -43,6 +43,11 @@ public class ReviewServiceImplement implements ReviewService {
 
     Product product = productService.getProductById(request.getProductId());
 
+    boolean isExists = reviewRepository.existsByMemberAndProduct(member, product);
+    if (isExists) {
+      throw new ReviewException(ResponseCode.REVIEW_ALREADY_EXISTS);
+    }
+
     Review savedReview = reviewRepository.save(
         Review.builder()
             .member(member)
