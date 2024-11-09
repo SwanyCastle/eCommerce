@@ -46,6 +46,7 @@ public enum ResponseCode {
   REVIEW_NOT_FOUND("리뷰가 존재하지 않습니다."),
   REVIEW_ALREADY_EXISTS("리뷰가 이미 존재 합니다."),
   REVIEW_UNMATCHED_MEMBER("요청한 멤버와 작성자가 일치하지 않습니다."),
+  REVIEW_DELETE_SUCCESS("리뷰를 정상적으로 삭제했습니다."),
 
   UNSUPPORTED_OAUTH_PROVIDER("지원되지 않는 OAuth 입니다.");
 

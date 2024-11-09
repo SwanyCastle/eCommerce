@@ -1,5 +1,6 @@
 package com.ecommerce.service.review;
 
+import com.ecommerce.dto.ResponseDto;
 import com.ecommerce.dto.review.ReviewDto;
 import com.ecommerce.dto.review.UpdateReviewDto;
 import com.ecommerce.entity.Member;
@@ -113,6 +114,36 @@ public class ReviewServiceImplement implements ReviewService {
     review.getProduct().setRating(ratingAvg);
 
     return ReviewDto.Response.fromEntity(review);
+  }
+
+  /**
+   * 리뷰 정보 삭제
+   *
+   * @param reviewId
+   * @param memberId
+   * @param token
+   * @return ResponseDto
+   */
+  @Override
+  @Transactional
+  public ResponseDto deleteReview(Long reviewId, String memberId, String token) {
+
+    authService.equalToMemberIdFromToken(memberId, token);
+
+    Review review = getReview(reviewId);
+
+    if (!review.getMember().getMemberId().equals(memberId)) {
+      throw new ReviewException(ResponseCode.REVIEW_UNMATCHED_MEMBER);
+    }
+
+    reviewRepository.delete(review);
+
+    BigDecimal ratingAvg = reviewRepository
+        .findAverageRatingByProductId(review.getProduct().getId());
+
+    review.getProduct().setRating(ratingAvg);
+
+    return ResponseDto.getResponseBody(ResponseCode.REVIEW_DELETE_SUCCESS);
   }
 
   /**
