@@ -1,6 +1,7 @@
 package com.ecommerce.service.cart;
 
 import com.ecommerce.dto.cart.CartDto;
+import com.ecommerce.entity.Cart;
 import com.ecommerce.entity.Member;
 import com.ecommerce.exception.CartException;
 import com.ecommerce.repository.CartRepository;
@@ -39,6 +40,22 @@ public class CartServiceImplement implements CartService {
         cartRepository.findByMember(member)
             .orElseThrow(() -> new CartException(ResponseCode.CART_NOT_FOUND))
     );
+
+  }
+
+  /**
+   * memberId 에 해당하는 Cart 조회
+   *
+   * @param memberId
+   * @return Cart
+   */
+  @Transactional(readOnly = true)
+  public Cart getCartByMemberId(String memberId) {
+
+    Member member = memberService.getMemberByMemberId(memberId);
+
+    return cartRepository.findByMember(member)
+        .orElseThrow(() -> new CartException(ResponseCode.CART_NOT_FOUND));
 
   }
 

@@ -5,13 +5,10 @@ import com.ecommerce.dto.cart.CartItemDto;
 import com.ecommerce.dto.cart.UpdateCartItemDto;
 import com.ecommerce.entity.Cart;
 import com.ecommerce.entity.CartItem;
-import com.ecommerce.entity.Member;
 import com.ecommerce.entity.Product;
 import com.ecommerce.exception.CartException;
 import com.ecommerce.repository.CartItemRepository;
-import com.ecommerce.repository.CartRepository;
 import com.ecommerce.service.auth.AuthService;
-import com.ecommerce.service.member.MemberService;
 import com.ecommerce.service.product.ProductService;
 import com.ecommerce.type.ProductStatus;
 import com.ecommerce.type.ResponseCode;
@@ -24,11 +21,10 @@ import org.springframework.transaction.annotation.Transactional;
 public class CartItemServiceImplement implements CartItemService {
 
   private final CartItemRepository cartItemRepository;
-  private final CartRepository cartRepository;
 
   private final AuthService authService;
-  private final MemberService memberService;
   private final ProductService productService;
+  private final CartService cartService;
 
   /**
    * 장바구니에 상품 담기
@@ -45,7 +41,7 @@ public class CartItemServiceImplement implements CartItemService {
 
     authService.equalToMemberIdFromToken(memberId, token);
 
-    Cart cart = getCartByMemberId(memberId);
+    Cart cart = cartService.getCartByMemberId(memberId);
 
     Product product = productService.getProductById(request.getProductId());
 
@@ -53,21 +49,26 @@ public class CartItemServiceImplement implements CartItemService {
       throw new CartException(ResponseCode.CANNOT_ADDED_PRODUCT);
     }
 
-    boolean isExists = cartItemRepository.existsByCartAndProduct(cart, product);
-    if (isExists) {
-      throw new CartException(ResponseCode.CART_ITEM_ALREADY_EXISTS);
-    }
+    checkExceedStockQuantity(request.getQuantity(), product.getStockQuantity());
 
-    return CartItemDto.Response.fromEntity(
-        cartItemRepository.save(
-            CartItem.builder()
-                .cart(cart)
-                .product(product)
-                .quantity(request.getQuantity())
-                .price(product.getPrice())
-                .build()
-        )
-    );
+    CartItem cartItem = cartItemRepository.findByCartAndProduct(cart, product)
+        .map(existsCartItem -> {
+          int totalQuantity = existsCartItem.getQuantity() + request.getQuantity();
+          checkExceedStockQuantity(totalQuantity, product.getStockQuantity());
+
+          existsCartItem.setQuantity(totalQuantity);
+          return existsCartItem;
+        }).orElseGet(
+            () -> cartItemRepository.save(
+                CartItem.builder()
+                    .cart(cart)
+                    .product(product)
+                    .quantity(request.getQuantity())
+                    .price(product.getPrice())
+                    .build()
+        ));
+
+    return CartItemDto.Response.fromEntity(cartItem);
 
   }
 
@@ -89,14 +90,25 @@ public class CartItemServiceImplement implements CartItemService {
 
     CartItem cartItem = getCartItemById(cartItemId);
 
-    if (updateRequest.getQuantity() > cartItem.getProduct().getStockQuantity()) {
-      throw new CartException(ResponseCode.CART_ITEM_CANNOT_UPDATE_QUANTITY);
-    }
+    int totalQuantity = cartItem.getQuantity() + updateRequest.getQuantity();
+    checkExceedStockQuantity(totalQuantity, cartItem.getProduct().getStockQuantity());
 
     cartItem.setQuantity(updateRequest.getQuantity());
 
     return CartItemDto.Response.fromEntity(cartItem);
 
+  }
+
+  /**
+   * 장바구니 상품 수 가 상품의 재고 수를 초고화는지 확인
+   * @param totalQuantity
+   * @param stockQuantity
+   */
+  @Override
+  public void checkExceedStockQuantity(int totalQuantity, int stockQuantity) {
+    if (totalQuantity > stockQuantity) {
+      throw new CartException(ResponseCode.CART_ITEM_EXCEED_QUANTITY);
+    }
   }
 
   /**
@@ -134,7 +146,7 @@ public class CartItemServiceImplement implements CartItemService {
 
     authService.equalToMemberIdFromToken(memberId, token);
 
-    Cart cart = getCartByMemberId(memberId);
+    Cart cart = cartService.getCartByMemberId(memberId);
 
     cartItemRepository.deleteAllByCart(cart);
 
@@ -153,22 +165,6 @@ public class CartItemServiceImplement implements CartItemService {
 
     return cartItemRepository.findById(cartItemId)
         .orElseThrow(() -> new CartException(ResponseCode.CART_ITEM_NOT_FOUND));
-
-  }
-
-  /**
-   * memberId 에 해당하는 Cart 조회
-   *
-   * @param memberId
-   * @return Cart
-   */
-  @Transactional(readOnly = true)
-  public Cart getCartByMemberId(String memberId) {
-
-    Member member = memberService.getMemberByMemberId(memberId);
-
-    return cartRepository.findByMember(member)
-        .orElseThrow(() -> new CartException(ResponseCode.CART_NOT_FOUND));
 
   }
 
