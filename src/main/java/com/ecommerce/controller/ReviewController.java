@@ -1,6 +1,7 @@
 package com.ecommerce.controller;
 
 import com.ecommerce.dto.review.ReviewDto;
+import com.ecommerce.dto.review.UpdateReviewDto;
 import com.ecommerce.service.review.ReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +9,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -50,6 +52,16 @@ public class ReviewController {
       @RequestHeader("Authorization") String token
   ) {
     return reviewService.getReviewDetail(reviewId, memberId, token);
+  }
+
+  @PutMapping("/{reviewId}/author/{memberId}")
+  public ReviewDto.Response updateReview(
+      @PathVariable Long reviewId,
+      @PathVariable String memberId,
+      @RequestHeader("Authorization") String token,
+      @RequestBody @Valid UpdateReviewDto updateRequest
+  ) {
+    return reviewService.updateReview(reviewId, memberId, token, updateRequest);
   }
 
 }

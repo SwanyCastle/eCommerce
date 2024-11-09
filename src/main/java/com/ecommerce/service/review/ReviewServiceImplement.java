@@ -1,16 +1,15 @@
 package com.ecommerce.service.review;
 
 import com.ecommerce.dto.review.ReviewDto;
+import com.ecommerce.dto.review.UpdateReviewDto;
 import com.ecommerce.entity.Member;
 import com.ecommerce.entity.Product;
 import com.ecommerce.entity.Review;
-import com.ecommerce.exception.ProductException;
 import com.ecommerce.exception.ReviewException;
 import com.ecommerce.repository.review.ReviewRepository;
 import com.ecommerce.service.auth.AuthService;
 import com.ecommerce.service.member.MemberService;
 import com.ecommerce.service.product.ProductService;
-import com.ecommerce.type.ProductStatus;
 import com.ecommerce.type.ResponseCode;
 import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
@@ -77,6 +76,39 @@ public class ReviewServiceImplement implements ReviewService {
             .orElseThrow(() -> new ReviewException(ResponseCode.REVIEW_NOT_FOUND))
     );
 
+  }
+
+  /**
+   * 리뷰 정보 수정
+   *
+   * @param reviewId
+   * @param memberId
+   * @param token
+   * @return ReviewDto.Response
+   */
+  @Override
+  @Transactional
+  public ReviewDto.Response updateReview(Long reviewId, String memberId, String token,
+      UpdateReviewDto updateRequest) {
+
+    authService.equalToMemberIdFromToken(memberId, token);
+
+    Review review = reviewRepository.findById(reviewId)
+        .orElseThrow(() -> new ReviewException(ResponseCode.REVIEW_NOT_FOUND));
+
+    if (!review.getMember().getMemberId().equals(memberId)) {
+      throw new ReviewException(ResponseCode.REVIEW_UNMATCHED_MEMBER);
+    }
+
+    review.setContent(updateRequest.getContent());
+    review.setRating(updateRequest.getRating());
+
+    BigDecimal ratingAvg = reviewRepository
+        .findAverageRatingByProductId(review.getProduct().getId());
+
+    review.getProduct().setRating(ratingAvg);
+
+    return ReviewDto.Response.fromEntity(review);
   }
 
 }

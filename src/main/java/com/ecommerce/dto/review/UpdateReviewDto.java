@@ -1,5 +1,6 @@
 package com.ecommerce.dto.review;
 
+import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -22,6 +23,7 @@ public class UpdateReviewDto {
 
   @NotNull
   @DecimalMin(value = "1.0")
+  @DecimalMax(value = "5.0")
   private BigDecimal rating;
 
 }
