@@ -191,6 +191,29 @@ public class ReviewServiceImplement implements ReviewService {
   }
 
   /**
+   * 특정 회원이 작성한 리뷰 목록 조회
+   *
+   * @param memberId
+   * @param page
+   * @param sortType
+   * @return Page<ReviewDto.Response>
+   */
+  @Override
+  public Page<ReviewDto.Response> getReviewsByMember(
+      String memberId, Integer page, SortType sortType
+  ) {
+
+    Sort sort = setSortType(sortType);
+
+    Pageable pageable = PageRequest.of(page - 1, REVIEW_PAGE_SIZE, sort);
+
+    Member member = memberService.getMemberByMemberId(memberId);
+
+    return reviewRepository.findByMember(member, pageable).map(ReviewDto.Response::fromEntity);
+
+  }
+
+  /**
    * 리뷰 정렬 기준 설정
    *
    * @param sortType

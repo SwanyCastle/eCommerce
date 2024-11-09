@@ -116,4 +116,22 @@ public class ReviewController {
     return reviewService.getReviewsByProduct(productId, page, sortType);
   }
 
+  /**
+   * 특정 회원이 작성한 리뷰 목록 조회
+   *
+   * @param memberId
+   * @param page
+   * @param sortType
+   * @return Page<ReviewDto.Response>
+   */
+  @PreAuthorize("hasRole('ROLE_CUSTOMER')")
+  @GetMapping("/author/{memberId}")
+  public Page<ReviewDto.Response> getReviewsByMember(
+      @PathVariable String memberId,
+      @RequestParam(required = false, defaultValue = "1") Integer page,
+      @RequestParam(required = false, defaultValue = "LATEST") SortType sortType
+  ) {
+    return reviewService.getReviewsByMember(memberId, page, sortType);
+  }
+
 }

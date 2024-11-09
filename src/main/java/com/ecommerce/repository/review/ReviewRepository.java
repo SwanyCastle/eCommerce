@@ -15,4 +15,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long>, ReviewCus
 
   Page<Review> findByProduct(Product product, Pageable pageable);
 
+  Page<Review> findByMember(Member member, Pageable pageable);
+
 }

@@ -22,4 +22,6 @@ public interface ReviewService {
 
   Page<ReviewDto.Response> getReviewsByProduct(Long productId, Integer page, SortType sortType);
 
+  Page<ReviewDto.Response> getReviewsByMember(String memberId, Integer page, SortType sortType);
+
 }
