@@ -176,6 +176,7 @@ public class ReviewServiceImplement implements ReviewService {
    * @return Page<Review>
    */
   @Override
+  @Transactional(readOnly = true)
   public Page<ReviewDto.Response> getReviewsByProduct(
       Long productId, Integer page, SortType sortType
   ) {
@@ -199,6 +200,7 @@ public class ReviewServiceImplement implements ReviewService {
    * @return Page<ReviewDto.Response>
    */
   @Override
+  @Transactional(readOnly = true)
   public Page<ReviewDto.Response> getReviewsByMember(
       String memberId, Integer page, SortType sortType
   ) {
