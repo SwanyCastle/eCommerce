@@ -1,12 +1,11 @@
 package com.ecommerce.entity;
 
-import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import java.util.ArrayList;
-import java.util.List;
+import jakarta.validation.constraints.DecimalMin;
+import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,14 +18,21 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 @Entity
-public class Cart extends BaseEntity {
+public class Review extends BaseEntity {
 
   @ManyToOne
   @JoinColumn(name = "member_id", nullable = false)
   private Member member;
 
-  @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
-  @Builder.Default
-  private List<CartItem> cartItems = new ArrayList<>();
+  @ManyToOne
+  @JoinColumn(name = "product_id", nullable = false)
+  private Product product;
+
+  @Column(nullable = false)
+  private String content;
+
+  @DecimalMin(value = "1.0")
+  @Column(nullable = false)
+  private BigDecimal rating;
 
 }
