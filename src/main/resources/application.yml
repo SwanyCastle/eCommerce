@@ -1,17 +1,10 @@
-app:
-  base-url: http://localhost:8080
-
 spring:
-
-  config:
-    import: optional:file:.env[.properties]
-
   application:
     name: Ecommerce
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?serverTimezone=UTC&characterEncoding=UTF-8
+    url: ${SPRING_DATASOURCE_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
 
@@ -47,7 +40,7 @@ spring:
           min-idle: 2
       host: ${REDIS_HOST}
       port: ${REDIS_PORT}
-      password: ${REDIS_PASSWORD}
+  #      password: ${REDIS_PASSWORD}
 
   security:
     oauth2:
@@ -57,7 +50,6 @@ spring:
           kakao:
             client-id: ${KAKAO_REST_API_KEY}
             client-secret: ${KAKAO_CLIENT_SECRET}
-            #            redirect-uri: http://localhost:8080/oauth2/callback/{registrationId}
             redirect-uri: ${app.base-url}/oauth2/callback/{registrationId}
             authorization-grant-type: authorization_code
             client-authentication-method: client_secret_post
@@ -68,7 +60,6 @@ spring:
           naver:
             client-id: ${NAVER_CLIENT_ID}
             client-secret: ${NAVER_CLIENT_SECRET}
-            #            redirect-uri: http://localhost:8080/oauth2/callback/{registrationId}
             redirect-uri: ${app.base-url}/oauth2/callback/{registrationId}
             authorization-grant-type: authorization_code
             scope:
