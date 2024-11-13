@@ -19,6 +19,7 @@ import com.ecommerce.dto.auth.IdDuplicateCheckDto;
 import com.ecommerce.dto.auth.SignInDto;
 import com.ecommerce.dto.auth.SignUpDto;
 import com.ecommerce.dto.member.MemberDto;
+import com.ecommerce.entity.Cart;
 import com.ecommerce.entity.Member;
 import com.ecommerce.exception.CertificationException;
 import com.ecommerce.exception.DataBaseException;
@@ -26,6 +27,7 @@ import com.ecommerce.exception.EmailException;
 import com.ecommerce.exception.MemberException;
 import com.ecommerce.provider.EmailProvider;
 import com.ecommerce.provider.JwtProvider;
+import com.ecommerce.repository.CartRepository;
 import com.ecommerce.repository.MemberRepository;
 import com.ecommerce.service.redis.RedisService;
 import com.ecommerce.type.LoginType;
@@ -50,6 +52,9 @@ public class AuthServiceImplementTest {
 
   @Mock
   private MemberRepository memberRepository;
+
+  @Mock
+  private CartRepository cartRepository;
 
   @Mock
   private EmailProvider emailProvider;
@@ -238,22 +243,25 @@ public class AuthServiceImplementTest {
         .role(Role.CUSTOMER)
         .build();
 
+    Member member = Member.builder()
+        .memberId("testUser")
+        .memberName("test")
+        .email("test@email.com")
+        .password("encodedPassword")
+        .phoneNumber("01011112222")
+        .address("test시 test구 test로 111")
+        .role(Role.CUSTOMER)
+        .loginType(LoginType.APP)
+        .build();
+
+    Cart cart = Cart.builder().member(member).build();
+
     given(memberRepository.existsByMemberId("testUser")).willReturn(false);
     given(redisService.checkVerified("testUser:verified")).willReturn(true);
     given(passwordEncoder.encode(anyString())).willReturn("encodedPassword");
 
-    given(memberRepository.save(any(Member.class))).willReturn(
-        Member.builder()
-            .memberId("testUser")
-            .memberName("test")
-            .email("test@email.com")
-            .password("encodedPassword")
-            .phoneNumber("01011112222")
-            .address("test시 test구 test로 111")
-            .role(Role.CUSTOMER)
-            .loginType(LoginType.APP)
-            .build()
-    );
+    given(memberRepository.save(any(Member.class))).willReturn(member);
+    given(cartRepository.save(any(Cart.class))).willReturn(cart);
 
     ArgumentCaptor<Member> userCaptor = ArgumentCaptor.forClass(Member.class);
 
@@ -266,6 +274,7 @@ public class AuthServiceImplementTest {
         .checkVerified(eq("testUser:verified"));
     verify(passwordEncoder, times(1)).encode(eq("testPassword"));
     verify(memberRepository, times(1)).save(userCaptor.capture());
+    verify(cartRepository, times(1)).save(any(Cart.class));
 
     assertThat(userCaptor.getValue()).isNotNull();
 // ArgumentCaptor 가 캡쳐 하는 시점이 userRepository.save() 함수에 인자값을 전달하는
