@@ -3,7 +3,7 @@ version: '3.8'
 services:
   mysql:
     image: mysql:latest
-    container_name: ecommerce_mysql
+    container_name: ecommerce-mysql
     env_file:
       - .env
     environment:
@@ -32,7 +32,7 @@ services:
       dockerfile: Dockerfile
       args:
         - JAR_FILE=build/libs/*.jar
-    container_name: ecommerce_springboot_app
+    container_name: ecommerce-springboot-app
     depends_on:
       - mysql
       - redis
