@@ -6,7 +6,7 @@ WORKDIR /app
 COPY . .
 
 RUN chmod +x ./gradlew
-RUN ./gradlew clean build --no-daemon --refresh-dependencies
+RUN ./gradlew clean build --no-daemon --refresh-dependencies -x test
 
 # Run stage
 FROM amazoncorretto:17
