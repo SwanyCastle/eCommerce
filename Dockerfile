@@ -1,17 +1,19 @@
 # Build stage
-FROM amazoncorretto:17-alpine AS build
+FROM amazoncorretto:17 AS build
 
 WORKDIR /app
 
 COPY . .
 
 RUN chmod +x ./gradlew
-RUN ./gradlew clean build --no-daemon --refresh-dependencies -x test
+RUN ./gradlew clean build --no-daemon --refresh-dependencies
 
 # Run stage
-FROM amazoncorretto:17-alpine
+FROM amazoncorretto:17
 
 COPY --from=build /app/build/libs/*.jar app.jar
+
+RUN chmod +x app.jar
 
 EXPOSE 8080
 
