@@ -72,18 +72,18 @@ jobs:
           port: ${{ secrets.EC2_HOST_PORT }}
           script: |
             # .env 파일 생성
-            echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" > .env
-            echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> .env
-            echo "MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}" >> .env
-            echo "MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}" >> .env
-            echo "KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }}" >> .env
-            echo "KAKAO_REST_API_KEY=${{ secrets.KAKAO_REST_API_KEY }}" >> .env
-            echo "MYSQL_URL=${{ secrets.MYSQL_URL }}" >> .env
-            echo "NAVER_CLIENT_ID=${{ secrets.NAVER_CLIENT_ID }}" >> .env
-            echo "NAVER_CLIENT_SECRET=${{ secrets.NAVER_CLIENT_SECRET }}" >> .env
-            echo "REDIS_HOST=${{ secrets.REDIS_HOST }}" >> .env
-            echo "REDIS_PORT=${{ secrets.REDIS_PORT }}" >> .env
-            echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+            # echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" > .env
+            # echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> .env
+            # echo "MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}" >> .env
+            # echo "MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}" >> .env
+            # echo "KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }}" >> .env
+            # echo "KAKAO_REST_API_KEY=${{ secrets.KAKAO_REST_API_KEY }}" >> .env
+            # echo "MYSQL_URL=${{ secrets.MYSQL_URL }}" >> .env
+            # echo "NAVER_CLIENT_ID=${{ secrets.NAVER_CLIENT_ID }}" >> .env
+            # echo "NAVER_CLIENT_SECRET=${{ secrets.NAVER_CLIENT_SECRET }}" >> .env
+            # echo "REDIS_HOST=${{ secrets.REDIS_HOST }}" >> .env
+            # echo "REDIS_PORT=${{ secrets.REDIS_PORT }}" >> .env
+            # echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
       
             # Docker Compose 실행
             docker-compose down
